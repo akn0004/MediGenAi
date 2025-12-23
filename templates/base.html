@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MediGenAI{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     {% load static %}
     <style>
         * {
@@ -14,7 +17,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Montserrat', sans-serif;
             background-color: #f5f6fa;
             color: #333;
             margin: 0;
@@ -52,8 +55,8 @@
         }
 
         .logo img {
-            width: 100px;
-            height: 100px;
+            width: 200px;
+            height: 200px;
             object-fit: contain;
         }
 
@@ -62,8 +65,8 @@
         }
 
         .logo-text p {
-            font-size: 12px;
-            color: #1e3a8a;
+            font-size: 18px;
+            color: #1A3673;
             font-weight: 500;
             margin: 0;
         }
@@ -104,9 +107,9 @@
             left: 20px;
             right: 20px;
             padding: 12px;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #dc2626;
+            background: rgba(26, 54, 115, 0.1);
+            border: 1px solid rgba(26, 54, 115, 0.3);
+            color: #1A3673;
             border-radius: 8px;
             cursor: pointer;
             display: flex;
@@ -117,8 +120,8 @@
         }
 
         .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.2);
-            border-color: rgba(239, 68, 68, 0.5);
+            background: rgba(26, 54, 115, 0.2);
+            border-color: rgba(26, 54, 115, 0.5);
         }
 
         /* Main Content */
@@ -141,7 +144,7 @@
 
         .header-title h2 {
             font-size: 28px;
-            color: #1e3a8a;
+            color: #1A3673;
             margin-bottom: 5px;
         }
 

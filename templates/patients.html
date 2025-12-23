@@ -11,6 +11,8 @@
         margin-bottom: 30px;
         display: flex;
         gap: 10px;
+        padding-bottom: 30px;
+        border-bottom: 2px solid #e5e7eb;
     }
 
     .search-input {
@@ -28,7 +30,7 @@
 
     .btn-search {
         padding: 12px 24px;
-        background: #667eea;
+        background: #1A3673;
         color: white;
         border: none;
         border-radius: 8px;
@@ -41,80 +43,78 @@
         border-radius: 12px;
         padding: 24px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-top: 30px;
     }
 
-    .patients-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
+    .patients-table {
+        width: 100%;
+        border-collapse: collapse;
     }
 
-    .patient-card {
-        background: white;
-        border: 2px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 20px;
-        transition: all 0.3s;
+    .patients-table thead {
+        background: #f9fafb;
     }
 
-    .patient-card:hover {
-        border-color: #667eea;
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    .patients-table th {
+        padding: 16px;
+        text-align: left;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid #e5e7eb;
     }
 
-    .patient-header {
+    .patients-table td {
+        padding: 16px;
+        font-size: 14px;
+        color: #4b5563;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .patients-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .patient-name {
         display: flex;
         align-items: center;
-        gap: 15px;
-        margin-bottom: 15px;
+        gap: 12px;
     }
 
     .patient-avatar {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        width: 40px;
+        height: 40px;
+        background: #1A3673;
         color: white;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
+        font-size: 16px;
         font-weight: 600;
     }
 
-    .patient-info h3 {
-        font-size: 18px;
-        color: #1e3a8a;
-        margin-bottom: 4px;
-    }
-
-    .patient-info p {
-        font-size: 13px;
-        color: #6b7280;
-    }
-
-    .patient-details {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding-top: 15px;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        font-size: 14px;
-    }
-
-    .detail-label {
-        color: #6b7280;
-    }
-
-    .detail-value {
-        color: #1e3a8a;
+    .patient-name-text {
         font-weight: 600;
+        color: #1A3673;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-male {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-female {
+        background: #fce7f3;
+        color: #9f1239;
     }
 </style>
 {% endblock %}
@@ -129,42 +129,46 @@
     </form>
 </div>
 
-<div class="patients-grid">
-    {% for patient in patients %}
-    <div class="patient-card">
-        <div class="patient-header">
-            <div class="patient-avatar">
-                {{ patient.name|first|upper }}
-            </div>
-            <div class="patient-info">
-                <h3>{{ patient.name }}</h3>
-                <p><i class="fas fa-calendar"></i> Added {{ patient.created_at|date:"M d, Y" }}</p>
-            </div>
-        </div>
-        <div class="patient-details">
-            <div class="detail-row">
-                <span class="detail-label">Age:</span>
-                <span class="detail-value">{{ patient.age }} years</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Gender:</span>
-                <span class="detail-value">{{ patient.get_gender_display }}</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Contact:</span>
-                <span class="detail-value">{{ patient.contact_number }}</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Reports:</span>
-                <span class="detail-value">{{ patient.reports.count }}</span>
-            </div>
-        </div>
-    </div>
-    {% empty %}
-    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #9ca3af;">
-        <i class="fas fa-user-slash" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
-        <p>No patients found</p>
-    </div>
-    {% endfor %}
+<div class="card">
+    <table class="patients-table">
+        <thead>
+            <tr>
+                <th>Patient Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Contact Number</th>
+                <th>Reports</th>
+                <th>Date Added</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+            <tr>
+                <td>
+                    <div class="patient-name">
+                        <div class="patient-avatar">
+                            {{ patient.name|first|upper }}
+                        </div>
+                        <span class="patient-name-text">{{ patient.name }}</span>
+                    </div>
+                </td>
+                <td>{{ patient.age }} years</td>
+                <td>
+                    <span class="badge badge-{{ patient.gender }}">{{ patient.get_gender_display }}</span>
+                </td>
+                <td>{{ patient.contact_number }}</td>
+                <td><strong>{{ patient.reports.count }}</strong></td>
+                <td>{{ patient.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+                    <i class="fas fa-user-slash" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                    <p>No patients found</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

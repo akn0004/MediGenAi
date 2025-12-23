@@ -6,7 +6,7 @@
     .login-container {
         display: flex;
         min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #1A3673;
     }
 
     .login-left {
@@ -80,11 +80,24 @@
         height: 160px;
         object-fit: contain;
         margin-bottom: 20px;
+        animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-20px);
+        }
+        60% {
+            transform: translateY(-10px);
+        }
     }
 
     .login-header h2 {
         font-size: 28px;
-        color: #1e3a8a;
+        color: #1A3673;
         margin-bottom: 8px;
     }
 
@@ -137,7 +150,7 @@
     .btn-login {
         width: 100%;
         padding: 14px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #1A3673;
         color: white;
         border: none;
         border-radius: 8px;
@@ -149,7 +162,8 @@
 
     .btn-login:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 10px 20px rgba(26, 54, 115, 0.3);
+        background: #0f2347;
     }
 
     .alert {
