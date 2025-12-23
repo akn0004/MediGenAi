@@ -307,51 +307,61 @@
     }
 
     /* AI Analysis */
-    .analysis-chart {
-        margin-top: 20px;
+    .donut-chart {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+        max-width: 160px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
-    .analysis-item {
+    .legend {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .legend-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #f3f4f6;
+        padding: 10px 12px;
+        background: #f9fafb;
+        border-radius: 8px;
     }
 
-    .analysis-item:last-child {
-        border-bottom: none;
-    }
-
-    .analysis-label {
+    .legend-label {
         display: flex;
         align-items: center;
         gap: 10px;
         font-size: 14px;
+        color: #374151;
     }
 
-    .color-dot {
-        width: 12px;
-        height: 12px;
+    .legend-dot {
+        width: 14px;
+        height: 14px;
         border-radius: 50%;
     }
 
-    .color-dot.normal {
+    .legend-dot.normal {
         background: #10b981;
     }
 
-    .color-dot.at-risk {
+    .legend-dot.at-risk {
         background: #f59e0b;
     }
 
-    .color-dot.critical {
+    .legend-dot.critical {
         background: #ef4444;
     }
 
-    .analysis-value {
-        font-weight: 700;
+    .legend-value {
         font-size: 18px;
-        color: #1e3a8a;
+        font-weight: 700;
+        color: #1A3673;
     }
 
     .btn-full-analysis {
@@ -364,7 +374,7 @@
         font-size: 14px;
         font-weight: 600;
         cursor: pointer;
-        margin-top: 20px;
+        margin-top: 16px;
         text-decoration: none;
         display: block;
         text-align: center;
@@ -476,33 +486,54 @@
             </a>
         </div>
 
-        <div class="analysis-chart">
-            <div class="analysis-item">
-                <div class="analysis-label">
-                    <span class="color-dot normal"></span>
+        <svg class="donut-chart" viewBox="0 0 200 200">
+            <circle class="donut-ring" cx="100" cy="100" r="80" fill="transparent" stroke="#e5e7eb" stroke-width="40"></circle>
+            
+            {% with total=analysis_data.normal|add:analysis_data.at_risk|add:analysis_data.critical %}
+                {% if total > 0 %}
+                    <circle class="donut-segment normal" cx="100" cy="100" r="80" fill="transparent" 
+                            stroke="#10b981" stroke-width="40"
+                            stroke-dasharray="{% widthratio analysis_data.normal total 502 %} 502"
+                            transform="rotate(-90 100 100)"></circle>
+                    
+                    <circle class="donut-segment at-risk" cx="100" cy="100" r="80" fill="transparent"
+                            stroke="#f59e0b" stroke-width="40"
+                            stroke-dasharray="{% widthratio analysis_data.at_risk total 502 %} 502"
+                            stroke-dashoffset="-{% widthratio analysis_data.normal total 502 %}"
+                            transform="rotate(-90 100 100)"></circle>
+                    
+                    <circle class="donut-segment critical" cx="100" cy="100" r="80" fill="transparent"
+                            stroke="#ef4444" stroke-width="40"
+                            stroke-dasharray="{% widthratio analysis_data.critical total 502 %} 502"
+                            stroke-dashoffset="-{% widthratio analysis_data.normal total 502 %}{% widthratio analysis_data.at_risk total 502 %}"
+                            transform="rotate(-90 100 100)"></circle>
+                {% endif %}
+            {% endwith %}
+        </svg>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-label">
+                    <span class="legend-dot normal"></span>
                     <span>Normal</span>
                 </div>
-                <div class="analysis-value">{{ analysis_data.normal }}</div>
+                <div class="legend-value">{{ analysis_data.normal }}</div>
             </div>
-            <div class="analysis-item">
-                <div class="analysis-label">
-                    <span class="color-dot at-risk"></span>
+            <div class="legend-item">
+                <div class="legend-label">
+                    <span class="legend-dot at-risk"></span>
                     <span>At Risk</span>
                 </div>
-                <div class="analysis-value">{{ analysis_data.at_risk }}</div>
+                <div class="legend-value">{{ analysis_data.at_risk }}</div>
             </div>
-            <div class="analysis-item">
-                <div class="analysis-label">
-                    <span class="color-dot critical"></span>
+            <div class="legend-item">
+                <div class="legend-label">
+                    <span class="legend-dot critical"></span>
                     <span>Critical</span>
                 </div>
-                <div class="analysis-value">{{ analysis_data.critical }}</div>
+                <div class="legend-value">{{ analysis_data.critical }}</div>
             </div>
         </div>
-
-        <a href="{% url 'ai_analysis' %}" class="btn-full-analysis">
-            View Full Analysis
-        </a>
     </div>
 </div>
 
