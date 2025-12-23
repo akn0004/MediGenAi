@@ -54,3 +54,78 @@ class MedicalReport(models.Model):
     
     class Meta:
         ordering = ['-date_created']
+
+
+class TestCategory(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = 'Test Categories'
+
+
+class TestType(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey(TestCategory, on_delete=models.CASCADE, related_name='test_types')
+    unit = models.CharField(max_length=50, blank=True, null=True)
+    normal_range_min = models.FloatField(blank=True, null=True)
+    normal_range_max = models.FloatField(blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.category.name})"
+    
+    class Meta:
+        ordering = ['category', 'name']
+
+
+class PatientTest(models.Model):
+    STATUS_CHOICES = [
+        ('normal', 'Normal'),
+        ('abnormal', 'Abnormal'),
+        ('critical', 'Critical'),
+    ]
+    
+    test_id = models.CharField(max_length=20, unique=True)
+    test_group = models.CharField(max_length=20, default='SINGLE')  # Groups multiple test types together
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='tests')
+    test_type = models.ForeignKey(TestType, on_delete=models.CASCADE)
+    test_date = models.DateTimeField(default=timezone.now)
+    result_value = models.FloatField(default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='normal')
+    notes = models.TextField(blank=True, null=True)
+    is_published = models.BooleanField(default=False)
+    published_date = models.DateTimeField(blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.test_id} - {self.patient.name} - {self.test_type.name}"
+    
+    def save(self, *args, **kwargs):
+        if not self.test_id:
+            # Auto-generate test ID
+            last_test = PatientTest.objects.all().order_by('id').last()
+            if last_test:
+                last_num = int(last_test.test_id.split('-')[1])
+                self.test_id = f'TEST-{str(last_num + 1).zfill(4)}'
+            else:
+                self.test_id = 'TEST-0001'
+        
+        # Auto-determine status based on normal range
+        if self.test_type.normal_range_min and self.test_type.normal_range_max:
+            if self.result_value < self.test_type.normal_range_min or self.result_value > self.test_type.normal_range_max:
+                if self.result_value < self.test_type.normal_range_min * 0.5 or self.result_value > self.test_type.normal_range_max * 1.5:
+                    self.status = 'critical'
+                else:
+                    self.status = 'abnormal'
+            else:
+                self.status = 'normal'
+        
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        ordering = ['-test_date']

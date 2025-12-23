@@ -268,6 +268,66 @@
         </div>
     </div>
 
+    {% if test_groups %}
+    <div class="card">
+        <h3 class="section-title">
+            <i class="fas fa-vial"></i>
+            Laboratory Test Results
+        </h3>
+        {% for test_group in test_groups %}
+        <div style="margin-bottom: 30px;">
+            <div style="background: #f9fafb; padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="color: #1A3673;">Test Group:</strong> {{ test_group.0.test_group }} |
+                    <strong style="color: #1A3673;">Date:</strong> {{ test_group.0.published_date|date:"Y-m-d H:i" }}
+                </div>
+            </div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                        <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #374151;">Test Type</th>
+                        <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #374151;">Category</th>
+                        <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #374151;">Result</th>
+                        <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #374151;">Normal Range</th>
+                        <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #374151;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for test in test_group %}
+                    <tr style="border-bottom: 1px solid #f3f4f6;">
+                        <td style="padding: 12px; font-size: 13px; color: #374151;"><strong>{{ test.test_type.name }}</strong></td>
+                        <td style="padding: 12px; font-size: 13px; color: #6b7280;">{{ test.test_type.category.name }}</td>
+                        <td style="padding: 12px; font-size: 14px; color: #1A3673; font-weight: 600;">
+                            {{ test.result_value }} {{ test.test_type.unit }}
+                        </td>
+                        <td style="padding: 12px; font-size: 13px; color: #6b7280;">
+                            {% if test.test_type.normal_range_min and test.test_type.normal_range_max %}
+                                {{ test.test_type.normal_range_min }} - {{ test.test_type.normal_range_max }} {{ test.test_type.unit }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td style="padding: 12px;">
+                            <span class="status-badge {{ test.status }}">
+                                {{ test.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% if test.notes %}
+                    <tr>
+                        <td colspan="5" style="padding: 8px 12px; background: #fef3c7; font-size: 12px; color: #92400e;">
+                            <strong>Notes:</strong> {{ test.notes }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="actions">
         <a href="{% url 'reports' %}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i>

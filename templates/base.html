@@ -276,6 +276,12 @@
                         <span>AI Analysis</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{% url 'tests' %}" class="nav-link {% if request.resolver_match.url_name == 'tests' %}active{% endif %}">
+                        <i class="fas fa-flask"></i>
+                        <span>Tests</span>
+                    </a>
+                </li>
             </ul>
             <a href="{% url 'logout' %}" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i>
