@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - MediGenAI{% endblock %}
+
+{% block page_title %}Medical Reports{% endblock %}
+{% block page_description %}View and manage all medical reports{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filters {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .filter-select {
+        padding: 10px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        min-width: 200px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 10px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .btn-filter {
+        padding: 10px 20px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: #f9fafb;
+    }
+
+    th {
+        padding: 14px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    td {
+        padding: 14px;
+        font-size: 14px;
+        color: #4b5563;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    tr:hover {
+        background: #f9fafb;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 14px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-badge.normal {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-badge.at_risk {
+        background: #fed7aa;
+        color: #92400e;
+    }
+
+    .status-badge.critical {
+        background: #fecaca;
+        color: #991b1b;
+    }
+
+    .btn-view {
+        padding: 8px 18px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-view:hover {
+        background: #2563eb;
+    }
+
+    .ai-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        background: #dbeafe;
+        color: #1e40af;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="get" class="filters">
+    <select name="status" class="filter-select">
+        <option value="">All Status</option>
+        <option value="normal" {% if status_filter == 'normal' %}selected{% endif %}>Normal</option>
+        <option value="at_risk" {% if status_filter == 'at_risk' %}selected{% endif %}>At Risk</option>
+        <option value="critical" {% if status_filter == 'critical' %}selected{% endif %}>Critical</option>
+    </select>
+    <input type="text" name="search" class="search-input" placeholder="Search by Report ID or Patient name..." value="{{ search_query }}">
+    <button type="submit" class="btn-filter">
+        <i class="fas fa-filter"></i> Filter
+    </button>
+</form>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Report ID</th>
+                <th>Patient</th>
+                <th>Date Created</th>
+                <th>Status</th>
+                <th>AI Generated</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td><strong>{{ report.report_id }}</strong></td>
+                <td>{{ report.patient.name }}</td>
+                <td>{{ report.date_created|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <span class="status-badge {{ report.status }}">
+                        {% if report.status == 'normal' %}Normal{% elif report.status == 'at_risk' %}At Risk{% else %}Critical{% endif %}
+                    </span>
+                </td>
+                <td>
+                    {% if report.ai_generated %}
+                    <span class="ai-badge">
+                        <i class="fas fa-robot"></i> AI
+                    </span>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'report_detail' report.report_id %}" class="btn-view">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+                    <i class="fas fa-file-alt" style="font-size: 48px; margin-bottom: 10px; display: block;"></i>
+                    No reports found
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

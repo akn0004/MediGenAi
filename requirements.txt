@@ -1,0 +1,8 @@
+Django==4.2.7
+PyMySQL==1.1.0
+cryptography==41.0.7
+python-decouple==3.8
+Pillow==10.1.0
+sqlparse==0.4.4
+asgiref==3.7.2
+tzdata==2023.3
