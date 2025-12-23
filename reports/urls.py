@@ -8,6 +8,7 @@ urlpatterns = [
     path('patients/', views.patients_view, name='patients'),
     path('add-patient/', views.add_patient, name='add_patient'),
     path('reports/', views.reports_view, name='reports'),
+    path('add-report/', views.add_report, name='add_report'),
     path('reports/<str:report_id>/', views.report_detail, name='report_detail'),
     path('ai-analysis/', views.ai_analysis_view, name='ai_analysis'),
     path('tests/', views.tests_view, name='tests'),
@@ -18,4 +19,6 @@ urlpatterns = [
     path('publish-tests/', views.publish_tests, name='publish_tests'),
     path('delete-test/', views.delete_test, name='delete_test'),
     path('bulk-delete-tests/', views.bulk_delete_tests, name='bulk_delete_tests'),
+    path('delete-report/<str:report_id>/', views.delete_report, name='delete_report'),
+    path('bulk-delete-reports/', views.bulk_delete_reports, name='bulk_delete_reports'),
 ]

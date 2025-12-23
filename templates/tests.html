@@ -213,6 +213,21 @@
         color: #1A3673;
         margin-bottom: 8px;
         font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .category-title:hover {
+        background: rgba(26, 54, 115, 0.05);
+    }
+
+    .category-title input[type="checkbox"] {
+        cursor: pointer;
     }
 
     .test-option {
@@ -469,11 +484,14 @@
             <div class="test-categories">
                 {% for category in categories %}
                 <div class="category-group">
-                    <div class="category-title">{{ category.name }}</div>
+                    <div class="category-title" onclick="toggleCategory(this)">
+                        <input type="checkbox" class="category-checkbox" data-category="{{ category.name }}" onclick="event.stopPropagation(); toggleCategoryTests(this)">
+                        {{ category.name }}
+                    </div>
                     {% for test_type in category.test_types.all %}
                     <div class="test-option">
                         <label>
-                            <input type="checkbox" name="test_type_ids" value="{{ test_type.id }}" class="test-checkbox">
+                            <input type="checkbox" name="test_type_ids" value="{{ test_type.id }}" class="test-checkbox" data-category="{{ category.name }}" onchange="updateCategoryCheckbox(this)">
                             {{ test_type.name }}
                         </label>
                     </div>
@@ -509,6 +527,7 @@
                     <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
                     <th>Test Group</th>
                     <th>Patient</th>
+                    <th>Report</th>
                     <th>Test Types</th>
                     <th>Date</th>
                     <th>Status</th>
@@ -521,6 +540,7 @@
                     <td><input type="checkbox" name="test_groups" class="test-checkbox draft-checkbox" value="{{ test_group.0.test_group }}" onchange="updateActionButtons()"></td>
                     <td><strong>{{ test_group.0.test_group }}</strong></td>
                     <td>{{ test_group.0.patient.name }}</td>
+                    <td>{{ test_group.0.report.report_id|default:"—" }}</td>
                     <td>
                         {% for test in test_group %}
                             {{ test.test_type.name }}{% if not forloop.last %}, {% endif %}
@@ -531,10 +551,10 @@
                     <td><span class="status-badge draft">DRAFT</span></td>
                     <td>
                         <button onclick="openEditModal('{{ test_group.0.test_group }}')" class="btn-secondary" style="margin-right: 8px;">
-                            <i class="fas fa-edit"></i> Edit
+                            <i class="fas fa-edit"></i>
                         </button>
                         <button onclick="deleteTestGroup('{{ test_group.0.test_group }}')" class="btn-danger">
-                            <i class="fas fa-trash"></i> Delete
+                            <i class="fas fa-trash"></i>
                         </button>
                     </td>
                 </tr>
@@ -544,6 +564,7 @@
                     <td><input type="checkbox" name="test_groups" class="test-checkbox published-checkbox" value="{{ test_group.0.test_group }}" onchange="updateActionButtons()"></td>
                     <td><strong>{{ test_group.0.test_group }}</strong></td>
                     <td>{{ test_group.0.patient.name }}</td>
+                    <td>{{ test_group.0.report.report_id|default:"—" }}</td>
                     <td>
                         {% for test in test_group %}
                             {{ test.test_type.name }}{% if not forloop.last %}, {% endif %}
@@ -560,10 +581,10 @@
                     </td>
                     <td>
                         <button onclick="openEditModal('{{ test_group.0.test_group }}')" class="btn-secondary" style="margin-right: 8px;">
-                            <i class="fas fa-edit"></i> Edit
+                            <i class="fas fa-edit"></i>
                         </button>
                         <button onclick="deleteTestGroup('{{ test_group.0.test_group }}')" class="btn-danger">
-                            <i class="fas fa-trash"></i> Delete
+                            <i class="fas fa-trash"></i>
                         </button>
                     </td>
                 </tr>
@@ -626,6 +647,34 @@
 <script>
     let currentTestGroup = null;
     let currentTests = [];
+
+    // Toggle all tests in a category
+    function toggleCategoryTests(checkbox) {
+        const category = checkbox.getAttribute('data-category');
+        const testCheckboxes = document.querySelectorAll(`input[name="test_type_ids"][data-category="${category}"]`);
+        testCheckboxes.forEach(cb => {
+            cb.checked = checkbox.checked;
+        });
+    }
+
+    // Update category checkbox based on individual test selections
+    function updateCategoryCheckbox(testCheckbox) {
+        const category = testCheckbox.getAttribute('data-category');
+        const categoryCheckbox = document.querySelector(`.category-checkbox[data-category="${category}"]`);
+        const testCheckboxes = document.querySelectorAll(`input[name="test_type_ids"][data-category="${category}"]`);
+        const allChecked = Array.from(testCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(testCheckboxes).some(cb => cb.checked);
+        
+        categoryCheckbox.checked = allChecked;
+        categoryCheckbox.indeterminate = someChecked && !allChecked;
+    }
+
+    // Toggle category on title click
+    function toggleCategory(titleElement) {
+        const checkbox = titleElement.querySelector('.category-checkbox');
+        checkbox.checked = !checkbox.checked;
+        toggleCategoryTests(checkbox);
+    }
 
     // Toggle select all checkboxes
     function toggleSelectAll() {

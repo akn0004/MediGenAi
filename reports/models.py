@@ -92,6 +92,7 @@ class PatientTest(models.Model):
     test_id = models.CharField(max_length=20, unique=True)
     test_group = models.CharField(max_length=20, default='SINGLE')  # Groups multiple test types together
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='tests')
+    report = models.ForeignKey('MedicalReport', on_delete=models.CASCADE, related_name='tests', null=True, blank=True)
     test_type = models.ForeignKey(TestType, on_delete=models.CASCADE)
     test_date = models.DateTimeField(default=timezone.now)
     result_value = models.FloatField(default=0)

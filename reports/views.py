@@ -131,10 +131,14 @@ def reports_view(request):
             Q(patient__name__icontains=search_query)
         )
     
+    # Get all patients for the add report modal
+    all_patients = Patient.objects.all()
+    
     context = {
         'reports': reports,
         'status_filter': status_filter,
         'search_query': search_query,
+        'all_patients': all_patients,
     }
     return render(request, 'reports.html', context)
 
@@ -142,10 +146,10 @@ def reports_view(request):
 def report_detail(request, report_id):
     report = get_object_or_404(MedicalReport, report_id=report_id)
     
-    # Get published test groups for this patient
+    # Get published test groups for THIS SPECIFIC REPORT
     from collections import defaultdict
     all_tests = PatientTest.objects.filter(
-        patient=report.patient,
+        report=report,
         is_published=True
     ).select_related('test_type', 'test_type__category').order_by('-test_date', 'test_group')
     
@@ -159,6 +163,38 @@ def report_detail(request, report_id):
         'test_groups': list(test_groups.values()),
     }
     return render(request, 'report_detail.html', context)
+
+
+@login_required
+def add_report(request):
+    if request.method == 'POST':
+        patient_id = request.POST.get('patient_id')
+        content = request.POST.get('content', '')
+        diagnosis = request.POST.get('diagnosis', '')
+        recommendations = request.POST.get('recommendations', '')
+        
+        try:
+            patient = Patient.objects.get(id=patient_id)
+            
+            # Create new report
+            report = MedicalReport.objects.create(
+                patient=patient,
+                status='normal',  # Default status, can be updated later
+                ai_generated=False,
+                created_by=request.user,
+                content=content,
+                diagnosis=diagnosis,
+                recommendations=recommendations
+            )
+            
+            messages.success(request, f'Report {report.report_id} created successfully!')
+            return JsonResponse({'success': True, 'report_id': report.report_id})
+        except Patient.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Patient not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 @login_required
 def ai_analysis_view(request):
@@ -192,7 +228,7 @@ def tests_view(request):
     patients = Patient.objects.all()
     
     # Get all patient tests grouped by test_group
-    all_tests = PatientTest.objects.select_related('patient', 'test_type', 'test_type__category').order_by('-test_date', 'test_group')
+    all_tests = PatientTest.objects.select_related('patient', 'test_type', 'test_type__category', 'report').order_by('-test_date', 'test_group')
     
     # Group tests by test_group
     from collections import defaultdict
@@ -257,6 +293,7 @@ def add_test(request):
                 
                 test = PatientTest.objects.create(
                     patient=patient,
+                    report=None,  # No report until published
                     test_type=test_type,
                     test_group=test_group,  # Assign same group ID
                     result_value=float(result_value),
@@ -364,14 +401,57 @@ def publish_tests(request):
         test_groups = request.POST.getlist('test_groups[]')
         
         try:
-            tests = PatientTest.objects.filter(test_group__in=test_groups)
+            for test_group in test_groups:
+                tests = PatientTest.objects.filter(test_group=test_group)
+                
+                if tests.exists():
+                    # Get the patient from the first test
+                    first_test = tests.first()
+                    patient = first_test.patient
+                    
+                    # Generate report ID
+                    last_report = MedicalReport.objects.all().order_by('id').last()
+                    if last_report:
+                        last_num = int(last_report.report_id.split('-')[1])
+                        report_id = f'REP-{str(last_num + 1).zfill(3)}'
+                    else:
+                        report_id = 'REP-001'
+                    
+                    # Collect test summary for report content
+                    test_summary = []
+                    for test in tests:
+                        test_summary.append(f"{test.test_type.name}: {test.result_value} {test.test_type.unit} ({test.status})")
+                    
+                    content = "Laboratory Test Report\\n\\n" + "\\n".join(test_summary)
+                    
+                    # Determine overall status based on test statuses
+                    if any(t.status == 'critical' for t in tests):
+                        overall_status = 'critical'
+                    elif any(t.status == 'abnormal' for t in tests):
+                        overall_status = 'at_risk'
+                    else:
+                        overall_status = 'normal'
+                    
+                    # Create new report
+                    report = MedicalReport.objects.create(
+                        report_id=report_id,
+                        patient=patient,
+                        content=content,
+                        diagnosis=f"Test Group {test_group} - {overall_status.upper()}",
+                        recommendations="Please review test results with a healthcare provider.",
+                        status=overall_status,
+                        ai_generated=False,
+                        created_by=request.user
+                    )
+                    
+                    # Link tests to the new report and publish them
+                    tests.update(
+                        report=report,
+                        is_published=True,
+                        published_date=timezone.now()
+                    )
             
-            for test in tests:
-                test.is_published = True
-                test.published_date = timezone.now()
-                test.save()
-            
-            messages.success(request, f'{len(test_groups)} test group(s) published successfully!')
+            messages.success(request, f'{len(test_groups)} test group(s) published with new report(s)!')
             return JsonResponse({'success': True, 'count': len(test_groups)})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
@@ -409,6 +489,45 @@ def bulk_delete_tests(request):
             
             messages.success(request, f'{len(test_groups)} test group(s) ({total_count} tests) deleted successfully!')
             return JsonResponse({'success': True, 'count': len(test_groups)})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def delete_report(request, report_id):
+    if request.method == 'POST':
+        try:
+            report = MedicalReport.objects.get(report_id=report_id)
+            # Delete associated tests first (cascade should handle this, but being explicit)
+            PatientTest.objects.filter(report=report).delete()
+            # Delete the report
+            report.delete()
+            messages.success(request, f'Report {report_id} deleted successfully!')
+            return JsonResponse({'success': True})
+        except MedicalReport.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Report not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def bulk_delete_reports(request):
+    if request.method == 'POST':
+        report_ids = request.POST.getlist('report_ids[]')
+        
+        try:
+            # Delete all associated tests first
+            for report_id in report_ids:
+                report = MedicalReport.objects.get(report_id=report_id)
+                PatientTest.objects.filter(report=report).delete()
+                report.delete()
+            
+            messages.success(request, f'{len(report_ids)} report(s) deleted successfully!')
+            return JsonResponse({'success': True, 'count': len(report_ids)})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     
