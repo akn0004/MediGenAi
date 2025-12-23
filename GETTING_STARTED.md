@@ -418,7 +418,7 @@ Most issues are related to:
 
 ## 🎉 You're Ready!
 
-Congratulations! You now have a fully functional AI-Assisted Medical Report Generation System.
+Congratulations! You now have a fully functional MediGenAI application.
 
 **Remember:**
 - Keep MySQL running

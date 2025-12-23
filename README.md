@@ -1,4 +1,4 @@
-# MediGenAI - AI-Assisted Medical Report Generation System
+# MediGenAI
 
 A comprehensive web application for managing medical reports with AI-powered analysis. Built with Django, HTML, CSS, JavaScript, and MySQL.
 

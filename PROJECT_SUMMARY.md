@@ -364,4 +364,4 @@ Your MediGenAI application is ready to use. Follow the QUICKSTART.md guide to ge
 
 **Built with ❤️ using Django, MySQL, HTML, CSS, and JavaScript**
 
-Enjoy your AI-Assisted Medical Report Generation System! 🏥🤖✨
+Enjoy your MediGenAI application! 🏥🤖✨
