@@ -398,6 +398,113 @@
         min-height: 60px;
         resize: vertical;
     }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .stats-wrapper {
+            flex-direction: column;
+        }
+
+        .actions-bar {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .actions-bar .btn-primary,
+        .actions-bar .btn-secondary,
+        .actions-bar .btn-danger {
+            width: 100%;
+        }
+
+        .filters {
+            flex-direction: column;
+        }
+
+        .filter-select, .search-input {
+            width: 100%;
+        }
+
+        .card {
+            padding: 12px;
+            overflow-x: auto;
+        }
+
+        .tests-table {
+            font-size: 12px;
+            min-width: 700px;
+        }
+
+        .tests-table th,
+        .tests-table td {
+            padding: 10px 8px;
+        }
+
+        .tests-table td:last-child {
+            white-space: nowrap;
+        }
+
+        .tests-table .btn-secondary,
+        .tests-table .btn-danger {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+
+        .tests-table .btn-secondary i,
+        .tests-table .btn-danger i {
+            font-size: 11px;
+        }
+
+        .test-group-info {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .card-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px;
+        }
+
+        .card-header > div {
+            width: 100%;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .card-header .btn-primary,
+        .card-header .btn-danger {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .tests-table {
+            font-size: 11px;
+        }
+
+        .tests-table .btn-secondary,
+        .tests-table .btn-danger {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+
+        .tests-table .btn-secondary i,
+        .tests-table .btn-danger i {
+            font-size: 10px;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+
+        .modal-content {
+            padding: 16px;
+            max-width: 95%;
+        }
+    }
 </style>
 {% endblock %}
 

@@ -90,6 +90,10 @@
         margin-top: 24px;
     }
 
+    .table-container {
+        overflow-x: auto;
+    }
+
     .patients-table {
         width: 100%;
         border-collapse: collapse;
@@ -162,21 +166,42 @@
         color: #9f1239;
     }
 
+    .btn-primary {
+        padding: 12px 24px;
+        background: #1A3673;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(26, 54, 115, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(26, 54, 115, 0.4);
+        background: #0f2347;
+    }
+
     .btn-secondary {
-        padding: 8px 16px;
+        padding: 12px 24px;
         background: #6b7280;
         color: white;
         border: none;
-        border-radius: 6px;
-        font-size: 13px;
+        border-radius: 12px;
+        font-size: 14px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
     }
 
     .btn-secondary:hover {
         background: #4b5563;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(107, 114, 128, 0.4);
     }
 
     .btn-danger {
@@ -194,6 +219,244 @@
     .btn-danger:hover {
         background: #b91c1c;
         transform: translateY(-1px);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 20px 24px;
+        background: #1A3673;
+        color: white;
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .modal-close {
+        color: white;
+        font-size: 32px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .modal-close:hover {
+        color: #fed7aa;
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #1A3673;
+        box-shadow: 0 0 0 3px rgba(26, 54, 115, 0.1);
+    }
+
+    .gender-options {
+        display: flex;
+        gap: 12px;
+    }
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        padding: 8px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        transition: all 0.3s;
+    }
+
+    .radio-label:hover {
+        background: #f9fafb;
+    }
+
+    .radio-label input[type="radio"] {
+        cursor: pointer;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .search-bar {
+            flex-direction: column;
+        }
+
+        .search-input {
+            width: 100%;
+        }
+
+        .btn-search, .actions-bar .btn-primary, .actions-bar .btn-danger {
+            width: 100%;
+        }
+
+        .card {
+            padding: 12px;
+            overflow-x: auto;
+        }
+
+        .patients-table {
+            font-size: 12px;
+            min-width: 600px;
+        }
+
+        .patients-table th,
+        .patients-table td {
+            padding: 10px 8px;
+        }
+
+        .patients-table td:last-child {
+            white-space: nowrap;
+        }
+
+        .patients-table .btn-edit,
+        .patients-table .btn-danger {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+
+        .patients-table .btn-edit i,
+        .patients-table .btn-danger i {
+            font-size: 11px;
+        }
+
+        .patient-name {
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .patient-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+
+        .modal-content {
+            width: 95%;
+            margin: 10px;
+        }
+
+        .gender-options {
+            flex-direction: column;
+        }
+
+        .radio-label {
+            width: 100%;
+        }
+
+        .modal-body .btn-primary,
+        .modal-body .btn-secondary {
+            width: 100%;
+            margin-right: 0 !important;
+            margin-bottom: 8px;
+        }
+
+        .modal-body > form > div:last-child {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .patients-table {
+            font-size: 11px;
+        }
+
+        .patients-table .btn-edit,
+        .patients-table .btn-danger {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+
+        .patients-table .btn-edit i,
+        .patients-table .btn-danger i {
+            font-size: 10px;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 10px 20px;
+            font-size: 13px;
+        }
     }
 </style>
 {% endblock %}
@@ -215,7 +478,8 @@
             <i class="fas fa-trash"></i> Delete Selected
         </button>
     </div>
-    <table class="patients-table">
+    <div class="table-container">
+        <table class="patients-table">
         <thead>
             <tr>
                 <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
@@ -247,7 +511,7 @@
                 <td>{{ patient.contact_number }}</td>
                 <td><strong>{{ patient.reports.count }}</strong></td>
                 <td>{{ patient.created_at|date:"M d, Y" }}</td>
-                <td>
+                <td style="white-space: nowrap;">
                     <button onclick="editPatient({{ patient.id }}, '{{ patient.name }}', {{ patient.age }}, '{{ patient.gender }}', '{{ patient.contact_number }}')" class="btn-edit" style="margin-right: 8px;">
                         <i class="fas fa-edit"></i>
                     </button>
@@ -266,58 +530,64 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 </div>
 
 <!-- Edit Patient Modal -->
-<div id="editPatientModal" class="modal" style="display: none;">
-    <div class="modal-content" style="max-width: 500px;">
+<div id="editPatientModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
         <div class="modal-header">
-            <h2 style="margin: 0; color: #1A3673; font-size: 24px; font-weight: 700;">
-                <i class="fas fa-user-edit"></i> Edit Patient
-            </h2>
-            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Patient</h2>
+            <span class="modal-close" onclick="closeEditModal()">&times;</span>
         </div>
-        <form id="editPatientForm">
-            {% csrf_token %}
-            <input type="hidden" id="edit_patient_id" name="patient_id">
-            
-            <div class="form-group">
-                <label for="edit_name">Patient Name</label>
-                <input type="text" id="edit_name" name="name" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="edit_age">Age</label>
-                <input type="number" id="edit_age" name="age" class="form-control" min="1" max="120" required>
-            </div>
-            
-            <div class="form-group">
-                <label>Gender</label>
-                <div class="gender-options">
-                    <label class="radio-label">
-                        <input type="radio" id="edit_gender_m" name="gender" value="M" required>
-                        <span>Male</span>
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" id="edit_gender_f" name="gender" value="F" required>
-                        <span>Female</span>
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" id="edit_gender_o" name="gender" value="O" required>
-                        <span>Other</span>
-                    </label>
+        <div class="modal-body">
+            <form id="editPatientForm">
+                {% csrf_token %}
+                <input type="hidden" id="edit_patient_id" name="patient_id">
+                
+                <div class="form-group">
+                    <label for="edit_name">Patient Name</label>
+                    <input type="text" id="edit_name" name="name" class="form-control" required>
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="edit_contact_number">Contact Number</label>
-                <input type="text" id="edit_contact_number" name="contact_number" class="form-control" required>
-            </div>
-            
-            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 20px;">
-                <i class="fas fa-save"></i> Update Patient
-            </button>
-        </form>
+                
+                <div class="form-group">
+                    <label for="edit_age">Age</label>
+                    <input type="number" id="edit_age" name="age" class="form-control" min="1" max="120" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Gender</label>
+                    <div class="gender-options">
+                        <label class="radio-label">
+                            <input type="radio" id="edit_gender_m" name="gender" value="M" required>
+                            <span>Male</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" id="edit_gender_f" name="gender" value="F" required>
+                            <span>Female</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" id="edit_gender_o" name="gender" value="O" required>
+                            <span>Other</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_contact_number">Contact Number</label>
+                    <input type="text" id="edit_contact_number" name="contact_number" class="form-control" required>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="button" onclick="closeEditModal()" class="btn-secondary" style="margin-right: 12px;">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -337,7 +607,7 @@
             document.getElementById('edit_gender_o').checked = true;
         }
         
-        document.getElementById('editPatientModal').style.display = 'block';
+        document.getElementById('editPatientModal').style.display = 'flex';
     }
     
     function closeEditModal() {
