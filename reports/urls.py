@@ -7,6 +7,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('patients/', views.patients_view, name='patients'),
     path('add-patient/', views.add_patient, name='add_patient'),
+    path('edit-patient/', views.edit_patient, name='edit_patient'),
     path('reports/', views.reports_view, name='reports'),
     path('add-report/', views.add_report, name='add_report'),
     path('reports/<str:report_id>/', views.report_detail, name='report_detail'),
@@ -24,4 +25,5 @@ urlpatterns = [
     path('delete-patient/<int:patient_id>/', views.delete_patient, name='delete_patient'),
     path('bulk-delete-patients/', views.bulk_delete_patients, name='bulk_delete_patients'),
     path('generate-ai-report/<str:report_id>/', views.generate_ai_report, name='generate_ai_report'),
+    path('settings/', views.settings_view, name='settings'),
 ]

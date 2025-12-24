@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Patient, MedicalReport, TestCategory, TestType, PatientTest
+from .models import Patient, MedicalReport, TestCategory, TestType, PatientTest, LabSettings
 
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
@@ -30,3 +30,16 @@ class PatientTestAdmin(admin.ModelAdmin):
     search_fields = ('test_id', 'patient__name', 'test_type__name')
     list_filter = ('status', 'test_date', 'test_type__category')
 
+
+@admin.register(LabSettings)
+class LabSettingsAdmin(admin.ModelAdmin):
+    list_display = ('lab_name', 'lab_phone', 'lab_email', 'updated_at', 'updated_by')
+    readonly_fields = ('updated_at', 'updated_by')
+    
+    def has_add_permission(self, request):
+        # Only allow one settings instance
+        return not LabSettings.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        # Prevent deletion of settings
+        return False

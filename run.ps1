@@ -14,9 +14,10 @@ if (Test-Path "venv\Scripts\Activate.ps1") {
     # Start the server
     Write-Host "Starting Django development server..." -ForegroundColor Green
     Write-Host "Access the application at: http://localhost:8000" -ForegroundColor Cyan
+    Write-Host "Or from network: http://<your-ip>:8000" -ForegroundColor Cyan
     Write-Host "Press CTRL+C to stop the server" -ForegroundColor Yellow
     Write-Host ""
-    python manage.py runserver
+    python manage.py runserver 0.0.0.0:8000
 } else {
     Write-Host "ERROR: Virtual environment not found!" -ForegroundColor Red
     Write-Host "Please run setup.ps1 first to set up the project." -ForegroundColor Yellow

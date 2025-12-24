@@ -62,6 +62,23 @@
         transform: translateY(0);
     }
 
+    .btn-edit {
+        padding: 8px 12px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 14px;
+    }
+
+    .btn-edit:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
     .card {
         background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(20px);
@@ -231,6 +248,9 @@
                 <td><strong>{{ patient.reports.count }}</strong></td>
                 <td>{{ patient.created_at|date:"M d, Y" }}</td>
                 <td>
+                    <button onclick="editPatient({{ patient.id }}, '{{ patient.name }}', {{ patient.age }}, '{{ patient.gender }}', '{{ patient.contact_number }}')" class="btn-edit" style="margin-right: 8px;">
+                        <i class="fas fa-edit"></i>
+                    </button>
                     <button onclick="deletePatient({{ patient.id }})" class="btn-danger">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -248,7 +268,111 @@
     </table>
 </div>
 
+<!-- Edit Patient Modal -->
+<div id="editPatientModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h2 style="margin: 0; color: #1A3673; font-size: 24px; font-weight: 700;">
+                <i class="fas fa-user-edit"></i> Edit Patient
+            </h2>
+            <span class="close" onclick="closeEditModal()">&times;</span>
+        </div>
+        <form id="editPatientForm">
+            {% csrf_token %}
+            <input type="hidden" id="edit_patient_id" name="patient_id">
+            
+            <div class="form-group">
+                <label for="edit_name">Patient Name</label>
+                <input type="text" id="edit_name" name="name" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit_age">Age</label>
+                <input type="number" id="edit_age" name="age" class="form-control" min="1" max="120" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="gender-options">
+                    <label class="radio-label">
+                        <input type="radio" id="edit_gender_m" name="gender" value="M" required>
+                        <span>Male</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" id="edit_gender_f" name="gender" value="F" required>
+                        <span>Female</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" id="edit_gender_o" name="gender" value="O" required>
+                        <span>Other</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit_contact_number">Contact Number</label>
+                <input type="text" id="edit_contact_number" name="contact_number" class="form-control" required>
+            </div>
+            
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 20px;">
+                <i class="fas fa-save"></i> Update Patient
+            </button>
+        </form>
+    </div>
+</div>
+
 <script>
+    function editPatient(id, name, age, gender, contact) {
+        document.getElementById('edit_patient_id').value = id;
+        document.getElementById('edit_name').value = name;
+        document.getElementById('edit_age').value = age;
+        document.getElementById('edit_contact_number').value = contact;
+        
+        // Set gender radio button
+        if (gender === 'M') {
+            document.getElementById('edit_gender_m').checked = true;
+        } else if (gender === 'F') {
+            document.getElementById('edit_gender_f').checked = true;
+        } else {
+            document.getElementById('edit_gender_o').checked = true;
+        }
+        
+        document.getElementById('editPatientModal').style.display = 'block';
+    }
+    
+    function closeEditModal() {
+        document.getElementById('editPatientModal').style.display = 'none';
+    }
+    
+    // Handle edit form submission
+    document.getElementById('editPatientForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch('/edit-patient/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Patient updated successfully!');
+                closeEditModal();
+                location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Failed to update patient'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the patient.');
+        });
+    });
+    
     function toggleSelectAll() {
         const selectAll = document.getElementById('selectAll');
         const checkboxes = document.querySelectorAll('.patient-checkbox');

@@ -130,3 +130,26 @@ class PatientTest(models.Model):
     
     class Meta:
         ordering = ['-test_date']
+
+
+class LabSettings(models.Model):
+    lab_name = models.CharField(max_length=200, default='MediGen Laboratory')
+    lab_address = models.TextField(default='123 Medical Center Drive, Healthcare City')
+    lab_phone = models.CharField(max_length=50, blank=True, null=True)
+    lab_email = models.EmailField(blank=True, null=True)
+    lab_logo = models.ImageField(upload_to='lab_logos/', blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    def __str__(self):
+        return self.lab_name
+    
+    class Meta:
+        verbose_name = 'Lab Settings'
+        verbose_name_plural = 'Lab Settings'
+    
+    @classmethod
+    def get_settings(cls):
+        """Get or create singleton settings instance"""
+        settings, created = cls.objects.get_or_create(id=1)
+        return settings

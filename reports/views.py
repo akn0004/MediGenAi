@@ -3,11 +3,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
-from .models import Patient, MedicalReport, TestCategory, TestType, PatientTest
+from .models import Patient, MedicalReport, TestCategory, TestType, PatientTest, LabSettings
 from .forms import PatientForm, MedicalReportForm
+from django.conf import settings as django_settings
 import random
+import os
+import re
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -80,6 +83,24 @@ def patients_view(request):
     return render(request, 'patients.html', context)
 
 @login_required
+def edit_patient(request):
+    if request.method == 'POST':
+        try:
+            patient_id = request.POST.get('patient_id')
+            patient = get_object_or_404(Patient, id=patient_id)
+            
+            form = PatientForm(request.POST, instance=patient)
+            if form.is_valid():
+                form.save()
+                return JsonResponse({'success': True, 'message': 'Patient updated successfully!'})
+            else:
+                return JsonResponse({'success': False, 'error': str(form.errors)})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@login_required
 def add_patient(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
@@ -145,6 +166,7 @@ def reports_view(request):
 @login_required
 def report_detail(request, report_id):
     report = get_object_or_404(MedicalReport, report_id=report_id)
+    lab_settings = LabSettings.get_settings()
     
     # Get published test groups for THIS SPECIFIC REPORT
     from collections import defaultdict
@@ -161,6 +183,7 @@ def report_detail(request, report_id):
     context = {
         'report': report,
         'test_groups': list(test_groups.values()),
+        'lab_settings': lab_settings,
     }
     return render(request, 'report_detail.html', context)
 
@@ -697,3 +720,29 @@ def generate_ai_report(request, report_id):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def settings_view(request):
+    settings = LabSettings.get_settings()
+    
+    if request.method == 'POST':
+        settings.lab_name = request.POST.get('lab_name', settings.lab_name)
+        settings.lab_address = request.POST.get('lab_address', settings.lab_address)
+        settings.lab_phone = request.POST.get('lab_phone', '')
+        settings.lab_email = request.POST.get('lab_email', '')
+        
+        # Handle logo upload
+        if 'lab_logo' in request.FILES:
+            settings.lab_logo = request.FILES['lab_logo']
+        
+        settings.updated_by = request.user
+        settings.save()
+        
+        messages.success(request, 'Lab settings updated successfully!')
+        return redirect('settings')
+    
+    context = {
+        'settings': settings,
+    }
+    return render(request, 'settings.html', context)
