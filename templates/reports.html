@@ -505,15 +505,15 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Report created successfully!');
-                location.reload();
+                showNotification('Report created successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while creating the report.');
+            showNotification('An error occurred while creating the report.', 'error');
         });
     });
 
@@ -524,10 +524,14 @@
         }
     }
 
-    function deleteReport(reportId) {
-        if (!confirm(`Are you sure you want to delete report ${reportId}? This will also delete all associated test results.`)) {
-            return;
-        }
+    async function deleteReport(reportId) {
+        const confirmed = await showConfirmDialog(
+            `Are you sure you want to delete report ${reportId}? This will also delete all associated test results.`,
+            'Delete Report',
+            true
+        );
+        
+        if (!confirmed) return;
 
         fetch(`/delete-report/${reportId}/`, {
             method: 'POST',
@@ -539,15 +543,15 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Report deleted successfully!');
-                location.reload();
+                showNotification('Report deleted successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting the report.');
+            showNotification('An error occurred while deleting the report.', 'error');
         });
     }
 
@@ -566,18 +570,22 @@
         bulkDeleteBtn.style.display = selectedReports.length > 0 ? 'block' : 'none';
     }
 
-    function bulkDeleteReports() {
+    async function bulkDeleteReports() {
         const selectedReports = document.querySelectorAll('.report-checkbox:checked');
         const reportIds = Array.from(selectedReports).map(cb => cb.value);
         
         if (reportIds.length === 0) {
-            alert('Please select at least one report to delete');
+            showNotification('Please select at least one report to delete', 'warning');
             return;
         }
 
-        if (!confirm(`Are you sure you want to delete ${reportIds.length} report(s)? This will also delete all associated test results.`)) {
-            return;
-        }
+        const confirmed = await showConfirmDialog(
+            `Are you sure you want to delete ${reportIds.length} report(s)? This will also delete all associated test results.`,
+            'Delete Reports',
+            true
+        );
+        
+        if (!confirmed) return;
 
         const formData = new FormData();
         reportIds.forEach(id => formData.append('report_ids[]', id));
@@ -590,15 +598,15 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`${reportIds.length} report(s) deleted successfully!`);
-                location.reload();
+                showNotification(`${reportIds.length} report(s) deleted successfully!`, 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting reports.');
+            showNotification('An error occurred while deleting reports.', 'error');
         });
     }
 </script>

@@ -815,7 +815,7 @@
         const selectedTests = document.querySelectorAll('input[name="test_type_ids"]:checked');
         
         if (selectedTests.length === 0) {
-            alert('Please select at least one test type');
+            showNotification('Please select at least one test type', 'warning');
             return;
         }
         
@@ -838,12 +838,12 @@
                 
                 setTimeout(() => location.reload(), 1500);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while creating the test group.');
+            showNotification('An error occurred while creating the test group.', 'error');
         });
     });
     
@@ -887,13 +887,13 @@
                     `;
                 });
             } else {
-                alert('Error loading test data: ' + data.error);
+                showNotification('Error loading test data: ' + data.error, 'error');
                 closeEditModal();
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while loading test data.');
+            showNotification('An error occurred while loading test data.', 'error');
             closeEditModal();
         });
     }
@@ -935,23 +935,27 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`${data.count} test(s) updated successfully!`);
-                location.reload();
+                showNotification(`${data.count} test(s) updated successfully!`, 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating tests.');
+            showNotification('An error occurred while updating tests.', 'error');
         });
     });
     
     // Delete test group function
-    function deleteTestGroup(testGroup) {
-        if (!confirm('Are you sure you want to delete this entire test group? This action cannot be undone.')) {
-            return;
-        }
+    async function deleteTestGroup(testGroup) {
+        const confirmed = await showConfirmDialog(
+            'Are you sure you want to delete this entire test group? This action cannot be undone.',
+            'Delete Test Group',
+            true
+        );
+        
+        if (!confirmed) return;
         
         const formData = new FormData();
         formData.append('test_group', testGroup);
@@ -964,15 +968,15 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Test group deleted successfully!');
-                location.reload();
+                showNotification('Test group deleted successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting the test group.');
+            showNotification('An error occurred while deleting the test group.', 'error');
         });
     }
     
@@ -982,7 +986,7 @@
             .map(checkbox => checkbox.value);
         
         if (selectedGroups.length === 0) {
-            alert('Please select at least one test group to publish');
+            showNotification('Please select at least one test group to publish', 'warning');
             return;
         }
         
@@ -997,31 +1001,35 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`${selectedGroups.length} test group(s) published successfully!`);
-                location.reload();
+                showNotification(`${selectedGroups.length} test group(s) published successfully!`, 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while publishing test groups.');
+            showNotification('An error occurred while publishing test groups.', 'error');
         });
     }
     
     // Delete selected test groups
-    function deleteSelected() {
+    async function deleteSelected() {
         const selectedGroups = Array.from(document.querySelectorAll('input[name="test_groups"]:checked'))
             .map(checkbox => checkbox.value);
         
         if (selectedGroups.length === 0) {
-            alert('Please select at least one test group to delete');
+            showNotification('Please select at least one test group to delete', 'warning');
             return;
         }
         
-        if (!confirm(`Are you sure you want to delete ${selectedGroups.length} test group(s)? This action cannot be undone.`)) {
-            return;
-        }
+        const confirmed = await showConfirmDialog(
+            `Are you sure you want to delete ${selectedGroups.length} test group(s)? This action cannot be undone.`,
+            'Delete Test Groups',
+            true
+        );
+        
+        if (!confirmed) return;
         
         const formData = new FormData();
         formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
@@ -1034,15 +1042,15 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`${selectedGroups.length} test group(s) deleted successfully!`);
-                location.reload();
+                showNotification(`${selectedGroups.length} test group(s) deleted successfully!`, 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting test groups.');
+            showNotification('An error occurred while deleting test groups.', 'error');
         });
     }
     

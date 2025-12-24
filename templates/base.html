@@ -238,6 +238,246 @@
             border-left: 4px solid #ef4444;
         }
 
+        /* Fluent Design Notifications */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .notification.success::before {
+            background: #10b981;
+        }
+
+        .notification.error::before {
+            background: #ef4444;
+        }
+
+        .notification.warning::before {
+            background: #f59e0b;
+        }
+
+        .notification.info::before {
+            background: #3b82f6;
+        }
+
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .notification.success .notification-icon {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .notification.error .notification-icon {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .notification.warning .notification-icon {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .notification.info .notification-icon {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .notification-content {
+            flex: 1;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .notification-close:hover {
+            color: #4b5563;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.removing {
+            animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes slideOut {
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Fluent Design Confirmation Dialog */
+        .confirm-dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-dialog {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: dialogSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes dialogSlideIn {
+            from {
+                transform: translateY(-50px) scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .confirm-dialog-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #fed7aa;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 16px;
+        }
+
+        .confirm-dialog-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1A3673;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .confirm-dialog-message {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .confirm-dialog-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .confirm-dialog-buttons button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .confirm-btn-cancel {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .confirm-btn-cancel:hover {
+            background: #e5e7eb;
+        }
+
+        .confirm-btn-confirm {
+            background: #1A3673;
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 54, 115, 0.3);
+        }
+
+        .confirm-btn-confirm:hover {
+            background: #0f2347;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(26, 54, 115, 0.4);
+        }
+
+        .confirm-btn-confirm.danger {
+            background: #dc2626;
+        }
+
+        .confirm-btn-confirm.danger:hover {
+            background: #b91c1c;
+        }
+
         /* Mobile Menu Toggle */
         .mobile-menu-toggle {
             display: none;
@@ -468,12 +708,115 @@
             {% block content %}{% endblock %}
         </main>
     </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Confirmation Dialog -->
+    <div class="confirm-dialog-overlay" id="confirmDialog">
+        <div class="confirm-dialog">
+            <div class="confirm-dialog-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="confirm-dialog-title" id="confirmTitle">Confirm Action</div>
+            <div class="confirm-dialog-message" id="confirmMessage">Are you sure you want to proceed?</div>
+            <div class="confirm-dialog-buttons">
+                <button class="confirm-btn-cancel" onclick="closeConfirmDialog()">Cancel</button>
+                <button class="confirm-btn-confirm" id="confirmBtn" onclick="confirmAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     {% else %}
     {% block login_content %}{% endblock %}
     {% endif %}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // Fluent Design Notification System
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    <i class="fas ${icons[type]}"></i>
+                </div>
+                <div class="notification-content">${message}</div>
+                <button class="notification-close" onclick="removeNotification(this)">×</button>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                removeNotification(notification.querySelector('.notification-close'));
+            }, 5000);
+        }
+
+        function removeNotification(btn) {
+            const notification = btn.closest('.notification');
+            notification.classList.add('removing');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }
+
+        // Fluent Design Confirmation Dialog
+        let confirmCallback = null;
+
+        function showConfirmDialog(message, title = 'Confirm Action', isDanger = false) {
+            return new Promise((resolve) => {
+                const dialog = document.getElementById('confirmDialog');
+                const titleEl = document.getElementById('confirmTitle');
+                const messageEl = document.getElementById('confirmMessage');
+                const confirmBtn = document.getElementById('confirmBtn');
+                
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                
+                if (isDanger) {
+                    confirmBtn.classList.add('danger');
+                } else {
+                    confirmBtn.classList.remove('danger');
+                }
+                
+                dialog.style.display = 'flex';
+                confirmCallback = resolve;
+            });
+        }
+
+        function confirmAction() {
+            if (confirmCallback) {
+                confirmCallback(true);
+                confirmCallback = null;
+            }
+            closeConfirmDialog();
+        }
+
+        function closeConfirmDialog() {
+            if (confirmCallback) {
+                confirmCallback(false);
+                confirmCallback = null;
+            }
+            document.getElementById('confirmDialog').style.display = 'none';
+        }
+
+        // Close dialog when clicking overlay
+        document.getElementById('confirmDialog').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConfirmDialog();
+            }
+        });
+
         function toggleMobileMenu() {
             const sidebar = document.querySelector('.sidebar');
             const overlay = document.querySelector('.mobile-overlay');

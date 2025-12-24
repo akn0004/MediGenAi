@@ -575,7 +575,9 @@
                 
                 <div class="form-group">
                     <label for="edit_contact_number">Contact Number</label>
-                    <input type="text" id="edit_contact_number" name="contact_number" class="form-control" required>
+                    <input type="tel" id="edit_contact_number" name="contact_number" class="form-control" 
+                           pattern="[6-9][0-9]{9}" maxlength="10" 
+                           title="Please enter a valid 10-digit Indian mobile number starting with 6-9" required>
                 </div>
                 
                 <div style="margin-top: 20px; text-align: right;">
@@ -630,17 +632,31 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Patient updated successfully!');
+                showNotification('Patient updated successfully!', 'success');
                 closeEditModal();
-                location.reload();
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + (data.error || 'Failed to update patient'));
+                showNotification('Error: ' + (data.error || 'Failed to update patient'), 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating the patient.');
+            showNotification('An error occurred while updating the patient.', 'error');
         });
+    });
+
+    // Contact number validation for Indian mobile numbers
+    document.getElementById('edit_contact_number').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        e.target.value = value;
+        
+        if (value.length > 0 && value.length < 10) {
+            e.target.setCustomValidity('Mobile number must be 10 digits');
+        } else if (value.length === 10 && !/^[6-9]/.test(value)) {
+            e.target.setCustomValidity('Mobile number must start with 6, 7, 8, or 9');
+        } else {
+            e.target.setCustomValidity('');
+        }
     });
     
     function toggleSelectAll() {
@@ -658,10 +674,14 @@
         bulkDeleteBtn.style.display = selectedPatients.length > 0 ? 'block' : 'none';
     }
 
-    function deletePatient(patientId) {
-        if (!confirm('Are you sure you want to delete this patient? This will also delete all associated reports and test results.')) {
-            return;
-        }
+    async function deletePatient(patientId) {
+        const confirmed = await showConfirmDialog(
+            'Are you sure you want to delete this patient? This will also delete all associated reports and test results.',
+            'Delete Patient',
+            true
+        );
+        
+        if (!confirmed) return;
 
         fetch(`/delete-patient/${patientId}/`, {
             method: 'POST',
@@ -673,30 +693,34 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Patient deleted successfully!');
-                location.reload();
+                showNotification('Patient deleted successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + (data.error || 'Failed to delete patient'), 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting the patient.');
+            showNotification('An error occurred while deleting the patient.', 'error');
         });
     }
 
-    function bulkDeletePatients() {
+    async function bulkDeletePatients() {
         const selectedPatients = document.querySelectorAll('.patient-checkbox:checked');
         const patientIds = Array.from(selectedPatients).map(cb => cb.value);
         
         if (patientIds.length === 0) {
-            alert('Please select at least one patient to delete');
+            showNotification('Please select at least one patient to delete', 'warning');
             return;
         }
 
-        if (!confirm(`Are you sure you want to delete ${patientIds.length} patient(s)? This will also delete all associated reports and test results.`)) {
-            return;
-        }
+        const confirmed = await showConfirmDialog(
+            `Are you sure you want to delete ${patientIds.length} patient(s)? This will also delete all associated reports and test results.`,
+            'Delete Patients',
+            true
+        );
+        
+        if (!confirmed) return;
 
         const formData = new FormData();
         patientIds.forEach(id => formData.append('patient_ids[]', id));
@@ -709,15 +733,15 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`${patientIds.length} patient(s) deleted successfully!`);
-                location.reload();
+                showNotification(`${patientIds.length} patient(s) deleted successfully!`, 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while deleting patients.');
+            showNotification('An error occurred while deleting patients.', 'error');
         });
     }
 </script>

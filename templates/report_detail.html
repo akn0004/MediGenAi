@@ -609,6 +609,247 @@
                 font-size: 12px;
             }
         }
+
+        /* Notification System Styles */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid;
+            min-width: 300px;
+        }
+
+        .notification i:first-child {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .notification span {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .notification-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: #1f2937;
+        }
+
+        .notification-success {
+            border-left-color: #10b981;
+        }
+
+        .notification-success i:first-child {
+            color: #10b981;
+        }
+
+        .notification-error {
+            border-left-color: #ef4444;
+        }
+
+        .notification-error i:first-child {
+            color: #ef4444;
+        }
+
+        .notification-warning {
+            border-left-color: #f59e0b;
+        }
+
+        .notification-warning i:first-child {
+            color: #f59e0b;
+        }
+
+        .notification-info {
+            border-left-color: #3b82f6;
+        }
+
+        .notification-info i:first-child {
+            color: #3b82f6;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Confirmation Dialog Styles */
+        .confirm-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .confirm-dialog-overlay.active {
+            opacity: 1;
+        }
+
+        .confirm-dialog {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 480px;
+            width: 90%;
+            overflow: hidden;
+            animation: dialogSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes dialogSlideIn {
+            from {
+                transform: scale(0.9) translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .confirm-dialog-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .confirm-dialog-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .confirm-dialog-body {
+            padding: 20px 24px;
+        }
+
+        .confirm-dialog-message {
+            font-size: 15px;
+            color: #4b5563;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .confirm-dialog-footer {
+            padding: 16px 24px;
+            background: #f9fafb;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .cancel-btn, .confirm-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .cancel-btn {
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .cancel-btn:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .confirm-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .confirm-btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .confirm-btn-danger:hover {
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        @media (max-width: 480px) {
+            .notification-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .notification {
+                min-width: auto;
+            }
+
+            .confirm-dialog {
+                width: 95%;
+                margin: 0 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -801,13 +1042,17 @@
     </div>
 
 <script>
-    function generateAiReport() {
+    async function generateAiReport() {
         const btn = document.getElementById('generateAiBtn');
         const originalText = btn.innerHTML;
         
-        if (!confirm('Generate AI analysis for this report? This will update the content, diagnosis, and recommendations.')) {
-            return;
-        }
+        const confirmed = await showConfirmDialog(
+            'Generate AI analysis for this report? This will update the content, diagnosis, and recommendations.',
+            'Generate AI Analysis',
+            false
+        );
+        
+        if (!confirmed) return;
         
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
@@ -822,21 +1067,94 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('AI report generated successfully!');
-                location.reload();
+                showNotification('AI report generated successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.error);
+                showNotification('Error: ' + data.error, 'error');
                 btn.disabled = false;
                 btn.innerHTML = originalText;
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while generating the AI report.');
+            showNotification('An error occurred while generating the AI report.', 'error');
             btn.disabled = false;
             btn.innerHTML = originalText;
         });
     }
+
+    // Notification System
+    function showNotification(message, type = 'info') {
+        const container = document.getElementById('notificationContainer');
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        
+        notification.innerHTML = `
+            <i class="fas ${icons[type]}"></i>
+            <span>${message}</span>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        container.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-out forwards';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
+    function showConfirmDialog(message, title = 'Confirm', isDanger = false) {
+        return new Promise((resolve) => {
+            const dialog = document.getElementById('confirmDialog');
+            const dialogTitle = dialog.querySelector('.confirm-dialog-title');
+            const dialogMessage = dialog.querySelector('.confirm-dialog-message');
+            const confirmBtn = dialog.querySelector('.confirm-btn');
+            
+            dialogTitle.textContent = title;
+            dialogMessage.textContent = message;
+            confirmBtn.className = isDanger ? 'confirm-btn confirm-btn-danger' : 'confirm-btn';
+            
+            dialog.style.display = 'flex';
+            setTimeout(() => dialog.classList.add('active'), 10);
+            
+            window.confirmAction = function(confirmed) {
+                dialog.classList.remove('active');
+                setTimeout(() => {
+                    dialog.style.display = 'none';
+                    resolve(confirmed);
+                }, 300);
+            };
+        });
+    }
 </script>
+
+<!-- Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
+
+<!-- Confirmation Dialog -->
+<div class="confirm-dialog-overlay" id="confirmDialog">
+    <div class="confirm-dialog">
+        <div class="confirm-dialog-header">
+            <h3 class="confirm-dialog-title">Confirm</h3>
+        </div>
+        <div class="confirm-dialog-body">
+            <p class="confirm-dialog-message"></p>
+        </div>
+        <div class="confirm-dialog-footer">
+            <button class="cancel-btn" onclick="confirmAction(false)">Cancel</button>
+            <button class="confirm-btn" onclick="confirmAction(true)">Confirm</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

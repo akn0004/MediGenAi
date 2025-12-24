@@ -18,7 +18,11 @@ class PatientForm(forms.ModelForm):
             }),
             'contact_number': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': '1234567890'
+                'placeholder': '9876543210',
+                'pattern': '[6-9][0-9]{9}',
+                'maxlength': '10',
+                'type': 'tel',
+                'title': 'Please enter a valid 10-digit Indian mobile number starting with 6-9'
             }),
         }
 

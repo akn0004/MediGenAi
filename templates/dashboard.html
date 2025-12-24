@@ -589,7 +589,9 @@
 
             <div class="form-group">
                 <label for="contact_number">Contact Number</label>
-                <input type="text" id="contact_number" name="contact_number" class="form-control" placeholder="1234567890" required>
+                <input type="tel" id="contact_number" name="contact_number" class="form-control" placeholder="9876543210" 
+                       pattern="[6-9][0-9]{9}" maxlength="10" 
+                       title="Please enter a valid 10-digit Indian mobile number starting with 6-9" required>
             </div>
 
             <button type="submit" class="btn-primary">
@@ -731,9 +733,23 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                alert('Error adding patient. Please try again.');
+                showNotification('Error adding patient. Please try again.', 'error');
             }
         });
+    });
+
+    // Contact number validation for Indian mobile numbers
+    document.getElementById('contact_number').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        e.target.value = value;
+        
+        if (value.length > 0 && value.length < 10) {
+            e.target.setCustomValidity('Mobile number must be 10 digits');
+        } else if (value.length === 10 && !/^[6-9]/.test(value)) {
+            e.target.setCustomValidity('Mobile number must start with 6, 7, 8, or 9');
+        } else {
+            e.target.setCustomValidity('');
+        }
     });
 });
 </script>
