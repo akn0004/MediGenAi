@@ -532,3 +532,168 @@ def bulk_delete_reports(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def delete_patient(request, patient_id):
+    if request.method == 'POST':
+        try:
+            patient = Patient.objects.get(id=patient_id)
+            # Delete all reports and tests associated with this patient
+            reports = MedicalReport.objects.filter(patient=patient)
+            for report in reports:
+                PatientTest.objects.filter(report=report).delete()
+            reports.delete()
+            # Delete the patient
+            patient.delete()
+            messages.success(request, f'Patient deleted successfully!')
+            return JsonResponse({'success': True})
+        except Patient.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Patient not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def bulk_delete_patients(request):
+    if request.method == 'POST':
+        patient_ids = request.POST.getlist('patient_ids[]')
+        
+        try:
+            for patient_id in patient_ids:
+                patient = Patient.objects.get(id=patient_id)
+                # Delete all reports and tests associated with this patient
+                reports = MedicalReport.objects.filter(patient=patient)
+                for report in reports:
+                    PatientTest.objects.filter(report=report).delete()
+                reports.delete()
+                patient.delete()
+            
+            messages.success(request, f'{len(patient_ids)} patient(s) deleted successfully!')
+            return JsonResponse({'success': True, 'count': len(patient_ids)})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def generate_ai_report(request, report_id):
+    if request.method == 'POST':
+        try:
+            report = MedicalReport.objects.get(report_id=report_id)
+            
+            # Get all test results for this report
+            tests = PatientTest.objects.filter(report=report, is_published=True).select_related('test_type', 'test_type__category')
+            
+            # Build test results summary
+            test_summary = []
+            critical_tests = []
+            abnormal_tests = []
+            
+            for test in tests:
+                test_info = f"{test.test_type.name}: {test.result_value} {test.test_type.unit}"
+                if test.test_type.normal_range_min and test.test_type.normal_range_max:
+                    test_info += f" (Normal: {test.test_type.normal_range_min}-{test.test_type.normal_range_max})"
+                test_info += f" - Status: {test.status.upper()}"
+                test_summary.append(test_info)
+                
+                if test.status == 'critical':
+                    critical_tests.append(test.test_type.name)
+                elif test.status == 'abnormal':
+                    abnormal_tests.append(test.test_type.name)
+            
+            # Generate AI content based on test results
+            patient = report.patient
+            
+            # Generate diagnosis based on test results
+            diagnosis = "<h4>Clinical Assessment</h4>"
+            
+            if critical_tests:
+                diagnosis += "<p><strong style='color: #dc2626;'>CRITICAL FINDINGS:</strong><br>"
+                diagnosis += f"The following tests show critical values requiring immediate medical attention: {', '.join(critical_tests)}.</p>"
+                overall_status = 'critical'
+            elif abnormal_tests:
+                diagnosis += "<p><strong style='color: #f59e0b;'>ABNORMAL FINDINGS:</strong><br>"
+                diagnosis += f"The following tests show abnormal values: {', '.join(abnormal_tests)}.</p>"
+                overall_status = 'at_risk'
+            else:
+                diagnosis += "<p>All laboratory test results are within normal ranges.</p>"
+                overall_status = 'normal'
+            
+            # Add detailed analysis by category
+            categories = {}
+            for test in tests:
+                cat_name = test.test_type.category.name
+                if cat_name not in categories:
+                    categories[cat_name] = []
+                categories[cat_name].append(test)
+            
+            diagnosis += "<h4>Detailed Analysis by Category</h4>"
+            for cat_name, cat_tests in categories.items():
+                diagnosis += f"<p><strong>{cat_name}:</strong><br>"
+                abnormal_in_cat = [t for t in cat_tests if t.status != 'normal']
+                if abnormal_in_cat:
+                    for test in abnormal_in_cat:
+                        diagnosis += f"&bull; {test.test_type.name} is {test.status}: {test.result_value} {test.test_type.unit}"
+                        if test.test_type.normal_range_min and test.test_type.normal_range_max:
+                            diagnosis += f" (Normal range: {test.test_type.normal_range_min}-{test.test_type.normal_range_max})"
+                        diagnosis += "<br>"
+                else:
+                    diagnosis += "All tests in this category are within normal range.<br>"
+                diagnosis += "</p>"
+            
+            # Generate recommendations
+            recommendations = "<h4>Medical Recommendations</h4>"
+            
+            if critical_tests:
+                recommendations += "<p><strong style='color: #dc2626;'>URGENT ACTION REQUIRED:</strong></p>"
+                recommendations += "<ol>"
+                recommendations += "<li>Immediate consultation with a healthcare provider is strongly recommended</li>"
+                recommendations += "<li>Do not delay seeking medical attention for critical findings</li>"
+                recommendations += "<li>Bring this report to your healthcare provider</li>"
+                recommendations += "</ol>"
+            
+            if abnormal_tests:
+                recommendations += "<p><strong>Follow-up Actions:</strong></p>"
+                recommendations += "<ol>"
+                recommendations += "<li>Schedule an appointment with your primary care physician within 1-2 weeks</li>"
+                recommendations += "<li>Discuss abnormal findings and potential causes</li>"
+                recommendations += "<li>Additional diagnostic tests may be recommended</li>"
+                recommendations += "</ol>"
+            
+            recommendations += "<p><strong>General Recommendations:</strong></p>"
+            recommendations += "<ol>"
+            recommendations += "<li>Maintain a healthy diet rich in fruits, vegetables, and whole grains</li>"
+            recommendations += "<li>Regular physical activity (30 minutes daily)</li>"
+            recommendations += "<li>Adequate hydration (8 glasses of water per day)</li>"
+            recommendations += "<li>Regular sleep schedule (7-9 hours per night)</li>"
+            recommendations += "<li>Stress management and relaxation techniques</li>"
+            recommendations += "<li>Follow-up laboratory tests as recommended by your physician</li>"
+            recommendations += "<li>Avoid self-medication without professional consultation</li>"
+            recommendations += "</ol>"
+            recommendations += "<p><em>Note: This is an AI-generated analysis. Please consult with a qualified healthcare professional for personalized medical advice.</em></p>"
+            
+            # Update report
+            report.diagnosis = diagnosis
+            report.recommendations = recommendations
+            report.status = overall_status
+            report.ai_generated = True
+            report.save()
+            
+            messages.success(request, 'AI report generated successfully!')
+            return JsonResponse({
+                'success': True,
+                'diagnosis': diagnosis,
+                'recommendations': recommendations,
+                'status': overall_status
+            })
+            
+        except MedicalReport.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Report not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})

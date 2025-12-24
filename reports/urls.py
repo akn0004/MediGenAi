@@ -21,4 +21,7 @@ urlpatterns = [
     path('bulk-delete-tests/', views.bulk_delete_tests, name='bulk_delete_tests'),
     path('delete-report/<str:report_id>/', views.delete_report, name='delete_report'),
     path('bulk-delete-reports/', views.bulk_delete_reports, name='bulk_delete_reports'),
+    path('delete-patient/<int:patient_id>/', views.delete_patient, name='delete_patient'),
+    path('bulk-delete-patients/', views.bulk_delete_patients, name='bulk_delete_patients'),
+    path('generate-ai-report/<str:report_id>/', views.generate_ai_report, name='generate_ai_report'),
 ]

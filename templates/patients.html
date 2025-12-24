@@ -144,6 +144,40 @@
         background: #fce7f3;
         color: #9f1239;
     }
+
+    .btn-secondary {
+        padding: 8px 16px;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        padding: 8px 16px;
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
 </style>
 {% endblock %}
 
@@ -158,20 +192,29 @@
 </div>
 
 <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0;">All Patients</h3>
+        <button onclick="bulkDeletePatients()" class="btn-danger" id="bulkDeleteBtn" style="display: none;">
+            <i class="fas fa-trash"></i> Delete Selected
+        </button>
+    </div>
     <table class="patients-table">
         <thead>
             <tr>
+                <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
                 <th>Patient Name</th>
                 <th>Age</th>
                 <th>Gender</th>
                 <th>Contact Number</th>
                 <th>Reports</th>
                 <th>Date Added</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for patient in patients %}
             <tr>
+                <td><input type="checkbox" name="patient_ids" class="patient-checkbox" value="{{ patient.id }}" onchange="updateBulkDeleteButton()"></td>
                 <td>
                     <div class="patient-name">
                         <div class="patient-avatar">
@@ -187,10 +230,15 @@
                 <td>{{ patient.contact_number }}</td>
                 <td><strong>{{ patient.reports.count }}</strong></td>
                 <td>{{ patient.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <button onclick="deletePatient({{ patient.id }})" class="btn-danger">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+                <td colspan="8" style="text-align: center; padding: 40px; color: #9ca3af;">
                     <i class="fas fa-user-slash" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
                     <p>No patients found</p>
                 </td>
@@ -199,4 +247,84 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.patient-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        updateBulkDeleteButton();
+    }
+
+    function updateBulkDeleteButton() {
+        const selectedPatients = document.querySelectorAll('.patient-checkbox:checked');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        bulkDeleteBtn.style.display = selectedPatients.length > 0 ? 'block' : 'none';
+    }
+
+    function deletePatient(patientId) {
+        if (!confirm('Are you sure you want to delete this patient? This will also delete all associated reports and test results.')) {
+            return;
+        }
+
+        fetch(`/delete-patient/${patientId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Patient deleted successfully!');
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the patient.');
+        });
+    }
+
+    function bulkDeletePatients() {
+        const selectedPatients = document.querySelectorAll('.patient-checkbox:checked');
+        const patientIds = Array.from(selectedPatients).map(cb => cb.value);
+        
+        if (patientIds.length === 0) {
+            alert('Please select at least one patient to delete');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete ${patientIds.length} patient(s)? This will also delete all associated reports and test results.`)) {
+            return;
+        }
+
+        const formData = new FormData();
+        patientIds.forEach(id => formData.append('patient_ids[]', id));
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch('/bulk-delete-patients/', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`${patientIds.length} patient(s) deleted successfully!`);
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting patients.');
+        });
+    }
+</script>
 {% endblock %}

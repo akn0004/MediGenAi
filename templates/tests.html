@@ -549,7 +549,7 @@
                     </td>
                     <td>{{ test_group.0.test_date|date:"Y-m-d" }}</td>
                     <td><span class="status-badge draft">DRAFT</span></td>
-                    <td>
+                    <td style="white-space: nowrap;">
                         <button onclick="openEditModal('{{ test_group.0.test_group }}')" class="btn-secondary" style="margin-right: 8px;">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -579,7 +579,7 @@
                         </span>
                         {% endwith %}
                     </td>
-                    <td>
+                    <td style="white-space: nowrap;">
                         <button onclick="openEditModal('{{ test_group.0.test_group }}')" class="btn-secondary" style="margin-right: 8px;">
                             <i class="fas fa-edit"></i>
                         </button>
