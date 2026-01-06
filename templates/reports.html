@@ -1,0 +1,613 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - MediGenAI{% endblock %}
+
+{% block page_title %}Medical Reports{% endblock %}
+{% block page_description %}View and manage all medical reports{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filters {
+        display: flex;
+        gap: 15px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        margin-bottom: 30px;
+    }
+
+    .filter-select {
+        padding: 12px 18px;
+        border: 2px solid rgba(26, 54, 115, 0.1);
+        border-radius: 12px;
+        font-size: 14px;
+        min-width: 200px;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .filter-select:hover {
+        border-color: rgba(26, 54, 115, 0.2);
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: #1A3673;
+        box-shadow: 0 0 0 4px rgba(26, 54, 115, 0.08);
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 12px 18px;
+        border: 2px solid rgba(26, 54, 115, 0.1);
+        border-radius: 12px;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .search-input:hover {
+        border-color: rgba(26, 54, 115, 0.2);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #1A3673;
+        box-shadow: 0 0 0 4px rgba(26, 54, 115, 0.08);
+    }
+
+    .btn-filter {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #1A3673 0%, #0f2347 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(26, 54, 115, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(26, 54, 115, 0.4);
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
+                    0 0 1px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        margin-top: 24px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: #f9fafb;
+    }
+
+    th {
+        padding: 14px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    td {
+        padding: 14px;
+        font-size: 14px;
+        color: #4b5563;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    tr:hover {
+        background: #f9fafb;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 14px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-badge.normal {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-badge.at_risk {
+        background: #fed7aa;
+        color: #92400e;
+    }
+
+    .status-badge.critical {
+        background: #fecaca;
+        color: #991b1b;
+    }
+
+    .btn-view {
+        padding: 8px 18px;
+        background: #1A3673;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-view:hover {
+        background: #0f2347;
+    }
+
+    .btn-secondary {
+        padding: 8px 16px;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        padding: 8px 16px;
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
+
+    .ai-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        background: #dbeafe;
+        color: #1e40af;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+        backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        padding: 20px 24px;
+        background: #1A3673;
+        color: white;
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-close {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #374151;
+        font-weight: 600;
+    }
+
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .filters {
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .search-input, .filter-select {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        .btn-filter {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn-search, .filters .btn-primary, .filters .btn-danger {
+            width: 100%;
+        }
+
+        /* Fix wrapper containing filters and add button */
+        div[style*="display: flex"][style*="justify-content: space-between"] {
+            flex-direction: column !important;
+            gap: 24px;
+        }
+
+        div[style*="display: flex"][style*="justify-content: space-between"] form {
+            margin-bottom: 0 !important;
+        }
+
+        div[style*="display: flex"][style*="justify-content: space-between"] .btn-filter[style*="margin-left"] {
+            margin-left: 0 !important;
+            width: 100%;
+        }
+
+        .card {
+            padding: 12px;
+            overflow-x: auto;
+        }
+
+        .reports-table {
+            font-size: 12px;
+            min-width: 600px;
+        }
+
+        .reports-table th,
+        .reports-table td {
+            padding: 10px 8px;
+        }
+
+        .reports-table td:last-child {
+            white-space: nowrap;
+        }
+
+        .reports-table .btn-view,
+        .reports-table .btn-danger {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+
+        .reports-table .btn-view i,
+        .reports-table .btn-danger i {
+            font-size: 11px;
+        }
+
+        .report-status {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .reports-table {
+            font-size: 11px;
+        }
+
+        .reports-table .btn-view,
+        .reports-table .btn-danger {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+
+        .reports-table .btn-view i,
+        .reports-table .btn-danger i {
+            font-size: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="get" class="filters">
+    <select name="status" class="filter-select">
+        <option value="">All Status</option>
+        <option value="normal" {% if status_filter == 'normal' %}selected{% endif %}>Normal</option>
+        <option value="at_risk" {% if status_filter == 'at_risk' %}selected{% endif %}>At Risk</option>
+        <option value="critical" {% if status_filter == 'critical' %}selected{% endif %}>Critical</option>
+    </select>
+    <input type="text" name="search" class="search-input" placeholder="Search by Report ID or Patient name..." value="{{ search_query }}">
+    <button type="submit" class="btn-filter">
+        <i class="fas fa-filter"></i> Filter
+    </button>
+</form>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0;">All Reports</h3>
+        <button onclick="bulkDeleteReports()" class="btn-danger" id="bulkDeleteBtn" style="display: none;">
+            <i class="fas fa-trash"></i> Delete Selected
+        </button>
+    </div>
+    <div class="table-container">
+        <table>
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                <th>Report ID</th>
+                <th>Patient</th>
+                <th>Date Created</th>
+                <th>Status</th>
+                <th>AI Generated</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td><input type="checkbox" name="report_ids" class="report-checkbox" value="{{ report.report_id }}" onchange="updateBulkDeleteButton()"></td>
+                <td><strong>{{ report.report_id }}</strong></td>
+                <td>{{ report.patient.name }}</td>
+                <td>{{ report.date_created|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <span class="status-badge {{ report.status }}">
+                        {% if report.status == 'normal' %}Normal{% elif report.status == 'at_risk' %}At Risk{% else %}Critical{% endif %}
+                    </span>
+                </td>
+                <td>
+                    {% if report.ai_generated %}
+                    <span class="ai-badge">
+                        <i class="fas fa-robot"></i> AI
+                    </span>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td style="white-space: nowrap;">
+                    <a href="{% url 'report_detail' report.report_id %}" class="btn-view">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                    <button onclick="deleteReport('{{ report.report_id }}')" class="btn-danger" style="margin-left: 8px;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 40px; color: #9ca3af;">
+                    <i class="fas fa-file-alt" style="font-size: 48px; margin-bottom: 10px; display: block;"></i>
+                    No reports found
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<!-- Add Report Modal -->
+<div id="addReportModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 style="margin: 0;">Create New Report</h3>
+            <span class="modal-close" onclick="closeAddReportModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="addReportForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="patient">Select Patient *</label>
+                    <select id="patient" name="patient_id" required>
+                        <option value="">Choose a patient...</option>
+                        {% for patient in all_patients %}
+                        <option value="{{ patient.id }}">{{ patient.name }} ({{ patient.age }}y, {{ patient.gender }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="content">Report Content</label>
+                    <textarea id="content" name="content" placeholder="Enter report content..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="diagnosis">Diagnosis</label>
+                    <textarea id="diagnosis" name="diagnosis" placeholder="Enter diagnosis..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="recommendations">Recommendations</label>
+                    <textarea id="recommendations" name="recommendations" placeholder="Enter recommendations..."></textarea>
+                </div>
+                <div style="text-align: right;">
+                    <button type="button" onclick="closeAddReportModal()" class="btn-filter" style="background: #6b7280; margin-right: 10px;">Cancel</button>
+                    <button type="submit" class="btn-filter" style="background: #1A3673; color: white;">Create Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openAddReportModal() {
+        document.getElementById('addReportModal').style.display = 'block';
+    }
+
+    function closeAddReportModal() {
+        document.getElementById('addReportModal').style.display = 'none';
+        document.getElementById('addReportForm').reset();
+    }
+
+    document.getElementById('addReportForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch("{% url 'add_report' %}", {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Report created successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification('Error: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while creating the report.', 'error');
+        });
+    });
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('addReportModal');
+        if (event.target == modal) {
+            closeAddReportModal();
+        }
+    }
+
+    async function deleteReport(reportId) {
+        const confirmed = await showConfirmDialog(
+            `Are you sure you want to delete report ${reportId}? This will also delete all associated test results.`,
+            'Delete Report',
+            true
+        );
+        
+        if (!confirmed) return;
+
+        fetch(`/delete-report/${reportId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Report deleted successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification('Error: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while deleting the report.', 'error');
+        });
+    }
+
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.report-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        updateBulkDeleteButton();
+    }
+
+    function updateBulkDeleteButton() {
+        const selectedReports = document.querySelectorAll('.report-checkbox:checked');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        bulkDeleteBtn.style.display = selectedReports.length > 0 ? 'block' : 'none';
+    }
+
+    async function bulkDeleteReports() {
+        const selectedReports = document.querySelectorAll('.report-checkbox:checked');
+        const reportIds = Array.from(selectedReports).map(cb => cb.value);
+        
+        if (reportIds.length === 0) {
+            showNotification('Please select at least one report to delete', 'warning');
+            return;
+        }
+
+        const confirmed = await showConfirmDialog(
+            `Are you sure you want to delete ${reportIds.length} report(s)? This will also delete all associated test results.`,
+            'Delete Reports',
+            true
+        );
+        
+        if (!confirmed) return;
+
+        const formData = new FormData();
+        reportIds.forEach(id => formData.append('report_ids[]', id));
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch('/bulk-delete-reports/', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(`${reportIds.length} report(s) deleted successfully!`, 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification('Error: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while deleting reports.', 'error');
+        });
+    }
+</script>
+{% endblock %}

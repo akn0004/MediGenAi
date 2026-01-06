@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ report.report_id }} - Medical Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .top-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+            padding: 20px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .back-link {
+            background: rgba(26, 54, 115, 0.1);
+            color: #1A3673;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .back-link:hover {
+            background: #1A3673;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 54, 115, 0.3);
+        }
+
+        .report-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
+                        0 0 1px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .lab-header-content {
+            text-align: center;
+        }
+
+        .lab-info-card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .lab-info-card .section-header {
+            display: none;
+        }
+
+        .lab-logo {
+            margin-bottom: 10px;
+        }
+
+        .lab-logo img {
+            max-width: 200px;
+            max-height: 80px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .lab-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1A3673;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+
+        .lab-info {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        .lab-info-row {
+            margin-bottom: 3px;
+        }
+
+        .lab-info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .report-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #374151;
+            font-weight: 500;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 12px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .meta-item i {
+            color: #667eea;
+        }
+
+        .badge-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 0;
+        }
+
+        .status-badge.normal {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.abnormal {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .status-badge.at_risk {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .status-badge.critical {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .section {
+            margin-bottom: 16px;
+        }
+
+        .section-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-header {
+            background: #1A3673;
+            color: white;
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header i {
+            font-size: 14px;
+        }
+
+        .section-content {
+            padding: 16px;
+        }
+
+        .patient-info-table {
+            width: 100%;
+            display: flex;
+            gap: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .info-row:hover {
+            opacity: 0.8;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #1A3673;
+            font-weight: 600;
+        }
+
+        .content-box {
+            background: white;
+            line-height: 1.6;
+            color: #374151;
+            font-size: 13px;
+        }
+
+        .content-box p {
+            margin-bottom: 8px;
+        }
+
+        .content-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .content-box ul,
+        .content-box ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .content-box li {
+            margin-bottom: 6px;
+        }
+
+        .content-box strong {
+            color: #1A3673;
+            font-weight: 600;
+        }
+
+        .content-box h1,
+        .content-box h2,
+        .content-box h3,
+        .content-box h4 {
+            color: #1A3673;
+            font-weight: 600;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+
+        .content-box h1:first-child,
+        .content-box h2:first-child,
+        .content-box h3:first-child,
+        .content-box h4:first-child {
+            margin-top: 0;
+        }
+
+        .test-group {
+            margin-bottom: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .test-group:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .test-group-header {
+            background: #1A3673;
+            color: white;
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .test-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .test-table thead {
+            background: rgba(26, 54, 115, 0.05);
+        }
+
+        .test-table th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .test-table td {
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .test-table tbody tr {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .test-table tbody tr:hover {
+            background: rgba(26, 54, 115, 0.03);
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Montserrat', sans-serif;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: #1A3673;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0f2347;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26, 54, 115, 0.3);
+        }
+
+        .btn-secondary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .top-nav,
+            .actions {
+                display: none !important;
+            }
+            .card {
+                box-shadow: none;
+                padding: 8px;
+            }
+            .section {
+                margin-bottom: 12px;
+                page-break-inside: avoid;
+            }
+            .section-header {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+            .section-content {
+                padding: 12px;
+            }
+            .test-group {
+                page-break-inside: avoid;
+                margin-bottom: 12px;
+            }
+            .lab-logo img {
+                max-height: 60px;
+            }
+            .lab-name {
+                font-size: 16px;
+            }
+            .test-table th,
+            .test-table td {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 16px 20px;
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+
+            .back-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .report-container {
+                padding: 16px 12px;
+            }
+
+            .card {
+                padding: 12px;
+            }
+
+            .section-header {
+                padding: 10px 14px;
+                font-size: 12px;
+            }
+
+            .section-content {
+                padding: 12px;
+            }
+
+            .lab-header-content {
+                padding: 12px;
+            }
+
+            .lab-logo {
+                margin-bottom: 8px;
+            }
+
+            .lab-logo img {
+                max-width: 150px;
+                max-height: 70px;
+            }
+
+            .lab-name {
+                font-size: 16px;
+                margin-bottom: 6px;
+            }
+
+            .lab-info {
+                font-size: 11px;
+            }
+
+            .lab-info-row {
+                margin-bottom: 2px;
+                word-break: break-word;
+            }
+
+            .patient-info-table {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .info-row {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .test-table {
+                font-size: 11px;
+                min-width: 600px;
+            }
+
+            .test-table th,
+            .test-table td {
+                padding: 8px 6px;
+            }
+
+            .section {
+                overflow-x: auto;
+            }
+
+            .test-group {
+                overflow-x: auto;
+            }
+
+            .actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-nav {
+                padding: 12px 16px;
+            }
+
+            .report-container {
+                padding: 12px 8px;
+            }
+
+            .card {
+                padding: 8px;
+            }
+
+            .section-header {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+
+            .section-content {
+                padding: 10px;
+            }
+
+            .lab-header-content {
+                padding: 8px;
+            }
+
+            .lab-logo {
+                margin-bottom: 6px;
+            }
+
+            .lab-logo img {
+                max-width: 120px;
+                max-height: 60px;
+            }
+
+            .lab-name {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+
+            .lab-info {
+                font-size: 10px;
+            }
+
+            .lab-info-row {
+                margin-bottom: 1px;
+            }
+
+            .test-table {
+                font-size: 10px;
+            }
+
+            .test-table th,
+            .test-table td {
+                padding: 6px 4px;
+            }
+
+            .info-label {
+                font-size: 10px;
+            }
+
+            .info-value {
+                font-size: 12px;
+            }
+
+            .content-box {
+                font-size: 12px;
+            }
+        }
+
+        /* Notification System Styles */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid;
+            min-width: 300px;
+        }
+
+        .notification i:first-child {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .notification span {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .notification-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: #1f2937;
+        }
+
+        .notification-success {
+            border-left-color: #10b981;
+        }
+
+        .notification-success i:first-child {
+            color: #10b981;
+        }
+
+        .notification-error {
+            border-left-color: #ef4444;
+        }
+
+        .notification-error i:first-child {
+            color: #ef4444;
+        }
+
+        .notification-warning {
+            border-left-color: #f59e0b;
+        }
+
+        .notification-warning i:first-child {
+            color: #f59e0b;
+        }
+
+        .notification-info {
+            border-left-color: #3b82f6;
+        }
+
+        .notification-info i:first-child {
+            color: #3b82f6;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Confirmation Dialog Styles */
+        .confirm-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .confirm-dialog-overlay.active {
+            opacity: 1;
+        }
+
+        .confirm-dialog {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 480px;
+            width: 90%;
+            overflow: hidden;
+            animation: dialogSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes dialogSlideIn {
+            from {
+                transform: scale(0.9) translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .confirm-dialog-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .confirm-dialog-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .confirm-dialog-body {
+            padding: 20px 24px;
+        }
+
+        .confirm-dialog-message {
+            font-size: 15px;
+            color: #4b5563;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .confirm-dialog-footer {
+            padding: 16px 24px;
+            background: #f9fafb;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .cancel-btn, .confirm-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .cancel-btn {
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .cancel-btn:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .confirm-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .confirm-btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .confirm-btn-danger:hover {
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        @media (max-width: 480px) {
+            .notification-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .notification {
+                min-width: auto;
+            }
+
+            .confirm-dialog {
+                width: 95%;
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        {% if is_patient_view %}
+        <a href="{% url 'patient_portal' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to My Reports
+        </a>
+        {% else %}
+        <a href="{% url 'reports' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Reports
+        </a>
+        {% endif %}
+        <div style="font-size: 16px; font-weight: 600; color: #1A3673;">Medical Report</div>
+    </div>
+
+    <div class="report-container">
+        <div class="card">
+            <!-- Lab Header -->
+            <div class="section">
+                <div class="section-card lab-info-card">
+                    <div class="section-header">
+                        <i class="fas fa-hospital"></i>
+                        Laboratory Information
+                    </div>
+                    <div class="section-content">
+                        <div class="lab-header-content">
+                            {% if lab_settings.lab_logo %}
+                            <div class="lab-logo">
+                                <img src="{{ lab_settings.lab_logo.url }}" alt="{{ lab_settings.lab_name }}">
+                            </div>
+                            {% endif %}
+                            <div class="lab-name">{{ lab_settings.lab_name }}</div>
+                            <div class="lab-info">
+                                <div class="lab-info-row">{{ lab_settings.lab_address }}</div>
+                                {% if lab_settings.lab_phone or lab_settings.lab_email %}
+                                <div class="lab-info-row">
+                                    {% if lab_settings.lab_phone %}Phone: {{ lab_settings.lab_phone }}{% endif %}
+                                    {% if lab_settings.lab_phone and lab_settings.lab_email %} | {% endif %}
+                                    {% if lab_settings.lab_email %}Email: {{ lab_settings.lab_email }}{% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patient Information -->
+            <div class="section">
+                <div class="section-card">
+                    <div class="section-header">
+                        <i class="fas fa-user"></i>
+                        Patient Information
+                    </div>
+                    <div class="section-content">
+                        <div class="patient-info-table">
+                            <div class="info-row">
+                                <div class="info-label">Report ID:</div>
+                                <div class="info-value">{{ report.report_id }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Date:</div>
+                                <div class="info-value">{{ report.date_created|date:"F d, Y" }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Time:</div>
+                                <div class="info-value">{{ report.date_created|date:"h:i A" }}</div>
+                            </div>
+                            {% if report.created_by %}
+                            <div class="info-row">
+                                <div class="info-label">Created by:</div>
+                                <div class="info-value">{{ report.created_by.username }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="patient-info-table" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                            <div class="info-row">
+                                <div class="info-label">Patient:</div>
+                                <div class="info-value">{{ report.patient.name }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Age:</div>
+                                <div class="info-value">{{ report.patient.age }} years</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Gender:</div>
+                                <div class="info-value">{{ report.patient.get_gender_display }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Contact:</div>
+                                <div class="info-value">{{ report.patient.contact_number }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Laboratory Test Results -->
+            {% if test_groups %}
+            <div class="section">
+                {% for test_group in test_groups %}
+                <div class="test-group">
+                    <div class="test-group-header">
+                        Test Group: {{ test_group.0.test_group }} | Date: {{ test_group.0.published_date|date:"Y-m-d H:i" }}
+                    </div>
+                    <table class="test-table">
+                        <thead>
+                            <tr>
+                                <th>Test Type</th>
+                                <th>Category</th>
+                                <th>Result</th>
+                                <th>Normal Range</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for test in test_group %}
+                            <tr>
+                                <td><strong>{{ test.test_type.name }}</strong></td>
+                                <td>{{ test.test_type.category.name }}</td>
+                                <td style="font-weight: 600; color: #1A3673;">
+                                    {{ test.result_value }} {{ test.test_type.unit }}
+                                </td>
+                                <td>
+                                    {% if test.test_type.normal_range_min and test.test_type.normal_range_max %}
+                                        {{ test.test_type.normal_range_min }} - {{ test.test_type.normal_range_max }} {{ test.test_type.unit }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="status-badge {{ test.status }}">
+                                        {{ test.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% if test.notes %}
+                            <tr>
+                                <td colspan="5" style="background: #fef3c7; padding: 8px 12px; font-size: 12px; color: #92400e;">
+                                    <strong>Notes:</strong> {{ test.notes }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Diagnosis -->
+            <div class="section">
+                <div class="section-card">
+                    <div class="section-header">
+                        <i class="fas fa-stethoscope"></i>
+                        Diagnosis
+                    </div>
+                    <div class="section-content">
+                        <div class="content-box">
+                            {{ report.diagnosis|safe|default:"No diagnosis recorded" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="section">
+                <div class="section-card">
+                    <div class="section-header">
+                        <i class="fas fa-clipboard-list"></i>
+                        Recommendations
+                    </div>
+                    <div class="section-content">
+                        <div class="content-box">
+                            {{ report.recommendations|safe|default:"No recommendations available" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button class="btn btn-secondary" id="generateAiBtn" onclick="generateAiReport()">
+                    <i class="fas fa-robot"></i>
+                    Generate AI Report
+                </button>
+                <button class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i>
+                    Print Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    async function generateAiReport() {
+        const btn = document.getElementById('generateAiBtn');
+        const originalText = btn.innerHTML;
+        
+        const confirmed = await showConfirmDialog(
+            'Generate AI analysis for this report? This will update the content, diagnosis, and recommendations.',
+            'Generate AI Analysis',
+            false
+        );
+        
+        if (!confirmed) return;
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        
+        fetch(`/generate-ai-report/{{ report.report_id }}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('AI report generated successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification('Error: ' + data.error, 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while generating the AI report.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+    }
+
+    // Notification System
+    function showNotification(message, type = 'info') {
+        const container = document.getElementById('notificationContainer');
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        
+        notification.innerHTML = `
+            <i class="fas ${icons[type]}"></i>
+            <span>${message}</span>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        container.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-out forwards';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
+    function showConfirmDialog(message, title = 'Confirm', isDanger = false) {
+        return new Promise((resolve) => {
+            const dialog = document.getElementById('confirmDialog');
+            const dialogTitle = dialog.querySelector('.confirm-dialog-title');
+            const dialogMessage = dialog.querySelector('.confirm-dialog-message');
+            const confirmBtn = dialog.querySelector('.confirm-btn');
+            
+            dialogTitle.textContent = title;
+            dialogMessage.textContent = message;
+            confirmBtn.className = isDanger ? 'confirm-btn confirm-btn-danger' : 'confirm-btn';
+            
+            dialog.style.display = 'flex';
+            setTimeout(() => dialog.classList.add('active'), 10);
+            
+            window.confirmAction = function(confirmed) {
+                dialog.classList.remove('active');
+                setTimeout(() => {
+                    dialog.style.display = 'none';
+                    resolve(confirmed);
+                }, 300);
+            };
+        });
+    }
+</script>
+
+<!-- Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
+
+<!-- Confirmation Dialog -->
+<div class="confirm-dialog-overlay" id="confirmDialog">
+    <div class="confirm-dialog">
+        <div class="confirm-dialog-header">
+            <h3 class="confirm-dialog-title">Confirm</h3>
+        </div>
+        <div class="confirm-dialog-body">
+            <p class="confirm-dialog-message"></p>
+        </div>
+        <div class="confirm-dialog-footer">
+            <button class="cancel-btn" onclick="confirmAction(false)">Cancel</button>
+            <button class="confirm-btn" onclick="confirmAction(true)">Confirm</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

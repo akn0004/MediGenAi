@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MediGenAI{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    {% load static %}
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(26, 54, 115, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(26, 54, 115, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            color: #333;
+            padding: 16px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
+                        0 0 1px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(26, 54, 115, 0.1);
+        }
+
+        .logo img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            text-align: center;
+        }
+
+        .logo-text p {
+            font-size: 13px;
+            color: #1A3673;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .nav-item {
+            margin-bottom: 6px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            color: #333;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(26, 54, 115, 0.08) 0%, rgba(26, 54, 115, 0.04) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .nav-link:hover::before, .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #1A3673;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(26, 54, 115, 0.12);
+        }
+
+        .nav-link i {
+            width: 20px;
+            font-size: 16px;
+        }
+
+        .logout-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            padding: 12px;
+            background: rgba(26, 54, 115, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(26, 54, 115, 0.2);
+            color: #1A3673;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .logout-btn:hover {
+            background: rgba(26, 54, 115, 0.12);
+            border-color: rgba(26, 54, 115, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 54, 115, 0.15);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 220px;
+            padding: 16px 30px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        .header-title h2 {
+            font-size: 22px;
+            color: #1A3673;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .header-title p {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 400;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #1e3a8a;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Messages */
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        /* Fluent Design Notifications */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .notification.success::before {
+            background: #10b981;
+        }
+
+        .notification.error::before {
+            background: #ef4444;
+        }
+
+        .notification.warning::before {
+            background: #f59e0b;
+        }
+
+        .notification.info::before {
+            background: #3b82f6;
+        }
+
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .notification.success .notification-icon {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .notification.error .notification-icon {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .notification.warning .notification-icon {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .notification.info .notification-icon {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .notification-content {
+            flex: 1;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .notification-close:hover {
+            color: #4b5563;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.removing {
+            animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes slideOut {
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Fluent Design Confirmation Dialog */
+        .confirm-dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-dialog {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: dialogSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes dialogSlideIn {
+            from {
+                transform: translateY(-50px) scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .confirm-dialog-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #fed7aa;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 16px;
+        }
+
+        .confirm-dialog-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1A3673;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .confirm-dialog-message {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .confirm-dialog-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .confirm-dialog-buttons button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .confirm-btn-cancel {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .confirm-btn-cancel:hover {
+            background: #e5e7eb;
+        }
+
+        .confirm-btn-confirm {
+            background: #1A3673;
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 54, 115, 0.3);
+        }
+
+        .confirm-btn-confirm:hover {
+            background: #0f2347;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(26, 54, 115, 0.4);
+        }
+
+        .confirm-btn-confirm.danger {
+            background: #dc2626;
+        }
+
+        .confirm-btn-confirm.danger:hover {
+            background: #b91c1c;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #1A3673;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(26, 54, 115, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mobile-menu-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                width: 260px;
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .mobile-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 80px 16px 16px 16px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px;
+                align-items: flex-start;
+            }
+
+            .header-title {
+                text-align: left;
+            }
+
+            .header-title h2 {
+                font-size: 20px;
+            }
+
+            .header-title p {
+                font-size: 12px;
+            }
+
+            .user-info {
+                width: 100%;
+                justify-content: flex-start;
+                gap: 10px;
+            }
+
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+
+            .user-info span {
+                font-size: 13px;
+            }
+
+            .logo img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 80px 12px 12px 12px;
+            }
+
+            .header {
+                padding: 12px;
+            }
+
+            .header-title h2 {
+                font-size: 18px;
+            }
+
+            .user-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+
+            .user-info {
+                gap: 8px;
+                justify-content: flex-start;
+            }
+
+            .user-info span {
+                font-size: 12px;
+            }
+
+            .logo img {
+                width: 80px;
+                height: 80px;
+            }
+
+            .sidebar {
+                width: 240px;
+            }
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="{% static 'images/logo.svg' %}" alt="MediGenAI Logo">
+                <div class="logo-text">
+                    <p>Smart Medical Reports</p>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'patients' %}" class="nav-link {% if request.resolver_match.url_name == 'patients' %}active{% endif %}">
+                        <i class="fas fa-users"></i>
+                        <span>Patients</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'reports' %}" class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'ai_analysis' %}" class="nav-link {% if request.resolver_match.url_name == 'ai_analysis' %}active{% endif %}">
+                        <i class="fas fa-brain"></i>
+                        <span>AI Analysis</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'tests' %}" class="nav-link {% if request.resolver_match.url_name == 'tests' %}active{% endif %}">
+                        <i class="fas fa-flask"></i>
+                        <span>Tests</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+            <a href="{% url 'logout' %}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <div class="header-title">
+                    <h2>{% block page_title %}Dashboard{% endblock %}</h2>
+                    <p>{% block page_description %}Manage patient data, generate medical reports, and view AI-generated analysis.{% endblock %}</p>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span>Admin</span>
+                </div>
+            </div>
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Confirmation Dialog -->
+    <div class="confirm-dialog-overlay" id="confirmDialog">
+        <div class="confirm-dialog">
+            <div class="confirm-dialog-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="confirm-dialog-title" id="confirmTitle">Confirm Action</div>
+            <div class="confirm-dialog-message" id="confirmMessage">Are you sure you want to proceed?</div>
+            <div class="confirm-dialog-buttons">
+                <button class="confirm-btn-cancel" onclick="closeConfirmDialog()">Cancel</button>
+                <button class="confirm-btn-confirm" id="confirmBtn" onclick="confirmAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    {% block login_content %}{% endblock %}
+    {% endif %}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Fluent Design Notification System
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    <i class="fas ${icons[type]}"></i>
+                </div>
+                <div class="notification-content">${message}</div>
+                <button class="notification-close" onclick="removeNotification(this)">×</button>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                removeNotification(notification.querySelector('.notification-close'));
+            }, 5000);
+        }
+
+        function removeNotification(btn) {
+            const notification = btn.closest('.notification');
+            notification.classList.add('removing');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }
+
+        // Fluent Design Confirmation Dialog
+        let confirmCallback = null;
+
+        function showConfirmDialog(message, title = 'Confirm Action', isDanger = false) {
+            return new Promise((resolve) => {
+                const dialog = document.getElementById('confirmDialog');
+                const titleEl = document.getElementById('confirmTitle');
+                const messageEl = document.getElementById('confirmMessage');
+                const confirmBtn = document.getElementById('confirmBtn');
+                
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                
+                if (isDanger) {
+                    confirmBtn.classList.add('danger');
+                } else {
+                    confirmBtn.classList.remove('danger');
+                }
+                
+                dialog.style.display = 'flex';
+                confirmCallback = resolve;
+            });
+        }
+
+        function confirmAction() {
+            if (confirmCallback) {
+                confirmCallback(true);
+                confirmCallback = null;
+            }
+            closeConfirmDialog();
+        }
+
+        function closeConfirmDialog() {
+            if (confirmCallback) {
+                confirmCallback(false);
+                confirmCallback = null;
+            }
+            document.getElementById('confirmDialog').style.display = 'none';
+        }
+
+        // Close dialog when clicking overlay
+        document.getElementById('confirmDialog').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConfirmDialog();
+            }
+        });
+
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking on a nav link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleMobileMenu();
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

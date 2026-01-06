@@ -1,0 +1,769 @@
+{% extends 'base.html' %}
+
+{% block title %}Patients - MediGenAI{% endblock %}
+
+{% block page_title %}Patients{% endblock %}
+{% block page_description %}View and manage all patient records{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-bar {
+        margin-bottom: 30px;
+        display: flex;
+        gap: 12px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 14px 18px;
+        border: 2px solid rgba(26, 54, 115, 0.1);
+        border-radius: 12px;
+        font-size: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .search-input:hover {
+        border-color: rgba(26, 54, 115, 0.2);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #1A3673;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(26, 54, 115, 0.08);
+        transform: translateY(-1px);
+    }
+
+    .btn-search {
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #1A3673 0%, #0f2347 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(26, 54, 115, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(26, 54, 115, 0.4);
+    }
+
+    .btn-search:active {
+        transform: translateY(0);
+    }
+
+    .btn-edit {
+        padding: 8px 12px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 14px;
+    }
+
+    .btn-edit:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
+                    0 0 1px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        margin-top: 24px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .patients-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .patients-table thead {
+        background: #f9fafb;
+    }
+
+    .patients-table th {
+        padding: 16px;
+        text-align: left;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .patients-table td {
+        padding: 16px;
+        font-size: 14px;
+        color: #4b5563;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .patients-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .patient-name {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .patient-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #1A3673 0%, #0f2347 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(26, 54, 115, 0.3);
+    }
+
+    .patient-name-text {
+        font-weight: 600;
+        color: #1A3673;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-male {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-female {
+        background: #fce7f3;
+        color: #9f1239;
+    }
+
+    .btn-primary {
+        padding: 12px 24px;
+        background: #1A3673;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(26, 54, 115, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(26, 54, 115, 0.4);
+        background: #0f2347;
+    }
+
+    .btn-secondary {
+        padding: 12px 24px;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(107, 114, 128, 0.4);
+    }
+
+    .btn-danger {
+        padding: 8px 16px;
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 20px 24px;
+        background: #1A3673;
+        color: white;
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .modal-close {
+        color: white;
+        font-size: 32px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .modal-close:hover {
+        color: #fed7aa;
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #1A3673;
+        box-shadow: 0 0 0 3px rgba(26, 54, 115, 0.1);
+    }
+
+    .gender-options {
+        display: flex;
+        gap: 12px;
+    }
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        padding: 8px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        transition: all 0.3s;
+    }
+
+    .radio-label:hover {
+        background: #f9fafb;
+    }
+
+    .radio-label input[type="radio"] {
+        cursor: pointer;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .search-bar {
+            flex-direction: column;
+        }
+
+        .search-input {
+            width: 100%;
+        }
+
+        .btn-search, .actions-bar .btn-primary, .actions-bar .btn-danger {
+            width: 100%;
+        }
+
+        .card {
+            padding: 12px;
+            overflow-x: auto;
+        }
+
+        .patients-table {
+            font-size: 12px;
+            min-width: 600px;
+        }
+
+        .patients-table th,
+        .patients-table td {
+            padding: 10px 8px;
+        }
+
+        .patients-table td:last-child {
+            white-space: nowrap;
+        }
+
+        .patients-table .btn-edit,
+        .patients-table .btn-danger {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+
+        .patients-table .btn-edit i,
+        .patients-table .btn-danger i {
+            font-size: 11px;
+        }
+
+        .patient-name {
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .patient-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+
+        .modal-content {
+            width: 95%;
+            margin: 10px;
+        }
+
+        .gender-options {
+            flex-direction: column;
+        }
+
+        .radio-label {
+            width: 100%;
+        }
+
+        .modal-body .btn-primary,
+        .modal-body .btn-secondary {
+            width: 100%;
+            margin-right: 0 !important;
+            margin-bottom: 8px;
+        }
+
+        .modal-body > form > div:last-child {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .patients-table {
+            font-size: 11px;
+        }
+
+        .patients-table .btn-edit,
+        .patients-table .btn-danger {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+
+        .patients-table .btn-edit i,
+        .patients-table .btn-danger i {
+            font-size: 10px;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 10px 20px;
+            font-size: 13px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-bar">
+    <form method="get" style="display: flex; gap: 10px; width: 100%;">
+        <input type="text" name="search" class="search-input" placeholder="Search patients by name or contact number..." value="{{ search_query }}">
+        <button type="submit" class="btn-search">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </form>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0;">All Patients</h3>
+        <button onclick="bulkDeletePatients()" class="btn-danger" id="bulkDeleteBtn" style="display: none;">
+            <i class="fas fa-trash"></i> Delete Selected
+        </button>
+    </div>
+    <div class="table-container">
+        <table class="patients-table">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                <th>Patient Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Contact Number</th>
+                <th>Reports</th>
+                <th>Date Added</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+            <tr>
+                <td><input type="checkbox" name="patient_ids" class="patient-checkbox" value="{{ patient.id }}" onchange="updateBulkDeleteButton()"></td>
+                <td>
+                    <div class="patient-name">
+                        <div class="patient-avatar">
+                            {{ patient.name|first|upper }}
+                        </div>
+                        <span class="patient-name-text">{{ patient.name }}</span>
+                    </div>
+                </td>
+                <td>{{ patient.age }} years</td>
+                <td>
+                    <span class="badge badge-{{ patient.gender }}">{{ patient.get_gender_display }}</span>
+                </td>
+                <td>{{ patient.contact_number }}</td>
+                <td><strong>{{ patient.reports.count }}</strong></td>
+                <td>{{ patient.created_at|date:"M d, Y" }}</td>
+                <td style="white-space: nowrap;">
+                    <button onclick="editPatient({{ patient.id }}, '{{ patient.name }}', {{ patient.age }}, '{{ patient.gender }}', '{{ patient.contact_number }}', '{{ patient.password|default:"" }}')", class="btn-edit" style="margin-right: 8px;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deletePatient({{ patient.id }})" class="btn-danger">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 40px; color: #9ca3af;">
+                    <i class="fas fa-user-slash" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                    <p>No patients found</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<!-- Edit Patient Modal -->
+<div id="editPatientModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2>Edit Patient</h2>
+            <span class="modal-close" onclick="closeEditModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editPatientForm">
+                {% csrf_token %}
+                <input type="hidden" id="edit_patient_id" name="patient_id">
+                
+                <div class="form-group">
+                    <label for="edit_name">Patient Name</label>
+                    <input type="text" id="edit_name" name="name" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_age">Age</label>
+                    <input type="number" id="edit_age" name="age" class="form-control" min="1" max="120" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Gender</label>
+                    <div class="gender-options">
+                        <label class="radio-label">
+                            <input type="radio" id="edit_gender_m" name="gender" value="M" required>
+                            <span>Male</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" id="edit_gender_f" name="gender" value="F" required>
+                            <span>Female</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" id="edit_gender_o" name="gender" value="O" required>
+                            <span>Other</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_contact_number">Contact Number</label>
+                    <input type="tel" id="edit_contact_number" name="contact_number" class="form-control" 
+                           pattern="[6-9][0-9]{9}" maxlength="10" 
+                           title="Please enter a valid 10-digit Indian mobile number starting with 6-9" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_password">Password</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="edit_password" name="password" class="form-control" readonly 
+                               style="background-color: #f8f9fa;">
+                        <button type="button" onclick="copyPassword()" class="btn-secondary" 
+                                style="padding: 8px 16px; white-space: nowrap;">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <small class="text-muted">Patient login password (Mobile number + password)</small>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="button" onclick="closeEditModal()" class="btn-secondary" style="margin-right: 12px;">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function editPatient(id, name, age, gender, contact, password) {
+        document.getElementById('edit_patient_id').value = id;
+        document.getElementById('edit_name').value = name;
+        document.getElementById('edit_age').value = age;
+        document.getElementById('edit_contact_number').value = contact;
+        document.getElementById('edit_password').value = password || 'Not set';
+        
+        // Set gender radio button
+        if (gender === 'M') {
+            document.getElementById('edit_gender_m').checked = true;
+        } else if (gender === 'F') {
+            document.getElementById('edit_gender_f').checked = true;
+        } else {
+            document.getElementById('edit_gender_o').checked = true;
+        }
+        
+        document.getElementById('editPatientModal').style.display = 'flex';
+    }
+    
+    function copyPassword() {
+        const passwordField = document.getElementById('edit_password');
+        passwordField.select();
+        document.execCommand('copy');
+        showNotification('Password copied to clipboard!', 'success');
+    }
+    
+    function closeEditModal() {
+        document.getElementById('editPatientModal').style.display = 'none';
+    }
+    
+    // Handle edit form submission
+    document.getElementById('editPatientForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch('/edit-patient/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Patient updated successfully!', 'success');
+                closeEditModal();
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification('Error: ' + (data.error || 'Failed to update patient'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while updating the patient.', 'error');
+        });
+    });
+
+    // Contact number validation for Indian mobile numbers
+    document.getElementById('edit_contact_number').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        e.target.value = value;
+        
+        if (value.length > 0 && value.length < 10) {
+            e.target.setCustomValidity('Mobile number must be 10 digits');
+        } else if (value.length === 10 && !/^[6-9]/.test(value)) {
+            e.target.setCustomValidity('Mobile number must start with 6, 7, 8, or 9');
+        } else {
+            e.target.setCustomValidity('');
+        }
+    });
+    
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.patient-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        updateBulkDeleteButton();
+    }
+
+    function updateBulkDeleteButton() {
+        const selectedPatients = document.querySelectorAll('.patient-checkbox:checked');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        bulkDeleteBtn.style.display = selectedPatients.length > 0 ? 'block' : 'none';
+    }
+
+    async function deletePatient(patientId) {
+        const confirmed = await showConfirmDialog(
+            'Are you sure you want to delete this patient? This will also delete all associated reports and test results.',
+            'Delete Patient',
+            true
+        );
+        
+        if (!confirmed) return;
+
+        fetch(`/delete-patient/${patientId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Patient deleted successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification('Error: ' + (data.error || 'Failed to delete patient'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while deleting the patient.', 'error');
+        });
+    }
+
+    async function bulkDeletePatients() {
+        const selectedPatients = document.querySelectorAll('.patient-checkbox:checked');
+        const patientIds = Array.from(selectedPatients).map(cb => cb.value);
+        
+        if (patientIds.length === 0) {
+            showNotification('Please select at least one patient to delete', 'warning');
+            return;
+        }
+
+        const confirmed = await showConfirmDialog(
+            `Are you sure you want to delete ${patientIds.length} patient(s)? This will also delete all associated reports and test results.`,
+            'Delete Patients',
+            true
+        );
+        
+        if (!confirmed) return;
+
+        const formData = new FormData();
+        patientIds.forEach(id => formData.append('patient_ids[]', id));
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch('/bulk-delete-patients/', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(`${patientIds.length} patient(s) deleted successfully!`, 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification('Error: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while deleting patients.', 'error');
+        });
+    }
+</script>
+{% endblock %}
